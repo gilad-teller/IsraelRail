@@ -31,7 +31,8 @@ namespace IsraelRail
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            //services.AddHttpClient("rail", c => c.BaseAddress = new Uri("https://www.rail.co.il/"));
+            services.AddHttpClient();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
