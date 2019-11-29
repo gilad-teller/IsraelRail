@@ -17,7 +17,13 @@
             </select>
         </div>
         <div class="col">
-            <button type ="button" class="btn btn-primary" onclick="GetStationData()">Get Data</button>
+            <button type="button" id="getDataBtn" class="btn btn-primary" onclick="GetStationData()">
+                <span id="getDataSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+                <span id="getDataLoad" style="display: none">Loading...</span>
+                <span id="getDataTxt">GetData</span>
+            </button>
         </div>
     </div>
 </form>
+
+<div id="content"></div>
