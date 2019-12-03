@@ -1,8 +1,6 @@
 ﻿using IsraelRail.Models.ApiModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace IsraelRail.Models.ViewModels
 {

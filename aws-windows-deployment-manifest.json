@@ -1,0 +1,15 @@
+{
+    "manifestVersion": 1,
+    "deployments": {
+        "aspNetCoreWeb": [
+        {
+            "name": "IsraelRail",
+            "parameters": {
+                "appBundle": "site.zip",
+                "iisPath": "/",
+                "iisWebSite": "IsraelRail"
+            }
+        }
+        ]
+    }
+}
