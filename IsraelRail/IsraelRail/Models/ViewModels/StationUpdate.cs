@@ -1,4 +1,5 @@
 ﻿using IsraelRail.Models.ApiModels;
+using System.Web;
 
 namespace IsraelRail.Models.ViewModels
 {
@@ -16,22 +17,22 @@ namespace IsraelRail.Models.ViewModels
             {
                 case E_Language.Hebrew:
                     Name = getStationsInfoResponseData.NameHeb;
-                    Content = getStationsInfoResponseData.UpdateContentHeb;
+                    Content = HttpUtility.HtmlDecode(getStationsInfoResponseData.UpdateContentHeb);
                     Link = getStationsInfoResponseData.UpdateLinkHeb;
                     break;
                 case E_Language.English:
                     Name = getStationsInfoResponseData.NameEng;
-                    Content = getStationsInfoResponseData.UpdateContentEng;
+                    Content = HttpUtility.HtmlDecode(getStationsInfoResponseData.UpdateContentEng);
                     Link = getStationsInfoResponseData.UpdateLinkEng;
                     break;
                 case E_Language.Russian:
                     Name = getStationsInfoResponseData.NameRus;
-                    Content = getStationsInfoResponseData.UpdateContentRus;
+                    Content = HttpUtility.HtmlDecode(getStationsInfoResponseData.UpdateContentRus);
                     Link = getStationsInfoResponseData.UpdateLinkRus;
                     break;
                 case E_Language.Arabic:
                     Name = getStationsInfoResponseData.NameArb;
-                    Content = getStationsInfoResponseData.UpdateContentArb;
+                    Content = HttpUtility.HtmlDecode(getStationsInfoResponseData.UpdateContentArb);
                     Link = getStationsInfoResponseData.UpdateLinkArb;
                     break;
             }

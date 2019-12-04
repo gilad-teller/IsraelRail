@@ -3,58 +3,36 @@
 
 <div>
     <hr />
+    <table class="table table-borderless">
+        @foreach (StationUpdate stationUpdate in Model)
+        {
+            <tr>
+                <th>@stationUpdate.Name</th>
+                <td>@stationUpdate.Content</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(stationUpdate.Link))
+                    {
+                        <a href="@stationUpdate.Link">Link</a>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div>
+    <hr />
     <dl class="row">
         @foreach (StationUpdate stationUpdate in Model)
         {
             <dt class="col-som-2">@stationUpdate.Name</dt>
-            <dd class="col-sm-10">@stationUpdate.Content @(!string.IsNullOrWhiteSpace(stationUpdate.Link) ? "<a href=\"" + stationUpdate.Link + "\">Link</a>" : "")</dd>
+            <dd class="col-sm-10">
+                @stationUpdate.Content
+                @if (!string.IsNullOrWhiteSpace(stationUpdate.Link))
+                {
+                    <a href="@stationUpdate.Link">Link</a>
+                }
+            </dd>
         }
     </dl>
 </div>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Language)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Content)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Link)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Language)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Content)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Link)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
