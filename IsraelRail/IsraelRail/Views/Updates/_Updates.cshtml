@@ -19,20 +19,3 @@
         }
     </table>
 </div>
-
-<div>
-    <hr />
-    <dl class="row">
-        @foreach (StationUpdate stationUpdate in Model)
-        {
-            <dt class="col-som-2">@stationUpdate.Name</dt>
-            <dd class="col-sm-10">
-                @stationUpdate.Content
-                @if (!string.IsNullOrWhiteSpace(stationUpdate.Link))
-                {
-                    <a href="@stationUpdate.Link">Link</a>
-                }
-            </dd>
-        }
-    </dl>
-</div>

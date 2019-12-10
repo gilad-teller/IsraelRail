@@ -32,7 +32,7 @@ namespace IsraelRail.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetStationData(int id)
+        public async Task<IActionResult> GetStationData(int id)
         {
             E_Station station = (E_Station)id;
             GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
@@ -47,6 +47,14 @@ namespace IsraelRail.Controllers
             StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew); 
             ViewBag.GoogleMapsUrl = _google.GetGoogleMapsUrl(stationData);
             return PartialView("_Station", stationData);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStationsDictionary()
+        {
+            GetStationsInforResponse stationsInfo = await _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>());
+            Dictionary<int, string> res = stationsInfo.Data.ToDictionary(x => int.Parse(x.StationCode), y => y.Hebrew.StationName);
+            return Json(res);
         }
     }
 }

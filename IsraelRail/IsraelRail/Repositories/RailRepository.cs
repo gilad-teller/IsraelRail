@@ -1,8 +1,11 @@
 ﻿using IsraelRail.Models;
 using IsraelRail.Models.ApiModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -11,7 +14,9 @@ namespace IsraelRail.Repositories
     public interface IRail
     {
         Task<GetStationsInforResponse> GetStationsInfor(E_Station station);
+        Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<E_Station> stations);
         Task<GetStationsInfoResponse> GetStationsInfo(E_Station origin, E_Station destination);
+        Task<GetRoutesResponse> GetRoutes(E_Station origin, E_Station destination, DateTime dateTime, bool isGoing);
     }
 
     public class RailRepository : IRail
@@ -42,6 +47,24 @@ namespace IsraelRail.Repositories
             return null;
         }
 
+        public async Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<E_Station> stations)
+        {
+            string parameters = string.Join('&', stations.Select(x => $"stations={(int)x}"));
+            UriBuilder ub = new UriBuilder("https://www.rail.co.il/apiinfo/api/infor/GetStationsInfor")
+            {
+                Query = parameters
+            };
+            Uri uri = ub.Uri;
+            HttpClient client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                GetStationsInforResponse result = await response.Content.ReadAsAsync<GetStationsInforResponse>();
+                return result;
+            }
+            return null;
+        }
+
         public async Task<GetStationsInfoResponse> GetStationsInfo(E_Station origin, E_Station destination)
         {
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
@@ -57,6 +80,30 @@ namespace IsraelRail.Repositories
             if (response.IsSuccessStatusCode)
             {
                 GetStationsInfoResponse result = await response.Content.ReadAsAsync<GetStationsInfoResponse>();
+                return result;
+            }
+            return null;
+        }
+
+        public async Task<GetRoutesResponse> GetRoutes(E_Station origin, E_Station destination, DateTime dateTime, bool isGoing)
+        {
+            NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
+            parameters["OId"] = ((int)origin).ToString();
+            parameters["TId"] = ((int)destination).ToString();
+            parameters["Date"] = dateTime.ToString("yyyyMMdd");
+            parameters["Hour"] = dateTime.ToString("HHmm");
+            parameters["isGoing"] = isGoing.ToString();
+            parameters["c"] = "1574944324761";
+            UriBuilder ub = new UriBuilder("https://www.rail.co.il/apiinfo/api/Plan/GetRoutes")
+            {
+                Query = HttpUtility.UrlDecode(parameters.ToString())
+            };
+            Uri uri = ub.Uri;
+            HttpClient client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                GetRoutesResponse result = await response.Content.ReadAsAsync<GetRoutesResponse>();
                 return result;
             }
             return null;
