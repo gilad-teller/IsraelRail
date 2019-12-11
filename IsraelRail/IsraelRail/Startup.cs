@@ -27,6 +27,7 @@ namespace IsraelRail
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddApplicationInsightsTelemetry();
             services.AddHttpClient();
             services.AddTransient<IRail, RailRepository>();
             services.AddTransient<IGoogle, GoogleApiRepositoryWithPArking>();
