@@ -25,7 +25,7 @@ namespace IsraelRail.Models.ViewModels
         public ICollection<Stop> Stops { get; set; }
         public E_Station CurrentStation { get; set; }
         public E_Station NextStation { get; set; }
-        public TimeSpan Delay { get; set; }
+        public TimeSpan? Delay { get; set; }
         public int Carriages { get; set; }
         public string StopPoint { get; set; }
         public string Equipment { get; set; }
@@ -68,26 +68,19 @@ namespace IsraelRail.Models.ViewModels
                         Accesability = t.Handicap,
                         Direct = t.DirectTrain,
                         ReservedSeats = t.ReservedSeat,
-                        Carriages = int.Parse(pos.TotalKronot),
-                        CurrentStation = (E_Station)pos.CurrentStation,
-                        NextStation = (E_Station)pos.NextStation,
-                        Equipment = pos.SugNayad,
-                        StopPoint = pos.StopPoint,
-                        Delay = TimeSpan.FromMinutes(pos.DifMin * (pos.DifType == "AHEAD" ? -1 : 1)),
+                        Carriages = int.Parse(pos?.TotalKronot ?? "0"),
+                        CurrentStation = pos != null ? (E_Station)pos.CurrentStation : E_Station.None,
+                        NextStation = pos != null ? (E_Station)pos.NextStation : E_Station.None,
+                        Equipment = pos?.SugNayad,
+                        StopPoint = pos?.StopPoint,
+                        Delay = Tools.DelayFromPosition(pos),
                         Stops = new List<Stop>()
                     };
+
                     int.TryParse(t.OrignStation, out int originStation);
                     DateTime.TryParseExact(t.DepartureTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime departureTime);
                     Trainposition originPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == originStation);
                     Delay originDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == t.OrignStation);
-                    TimeSpan? originDelayTimeSpan = null;
-                    if (originDelay != null)
-                    {
-                        if (TimeSpan.TryParseExact(originDelay.Min, "mmmm", null, out TimeSpan temp))
-                        {
-                            originDelayTimeSpan = temp;
-                        }
-                    }
                     Stop firstStop = new Stop()
                     {
                         Station = (E_Station)originStation,
@@ -95,7 +88,7 @@ namespace IsraelRail.Models.ViewModels
                         Departure = departureTime,
                         Platform = t.Platform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == originStation)?.OmesPercent,
-                        Delay = originPos != null ? TimeSpan.FromMinutes(originPos.DifMin * (originPos.DifType == "AHEAD" ? -1 : 1)) : (originDelayTimeSpan ?? null)
+                        Delay = Tools.StopDelay(originPos, originDelay)
                     };
                     train.Stops.Add(firstStop);
 
@@ -106,14 +99,6 @@ namespace IsraelRail.Models.ViewModels
                         DateTime.TryParseExact(st.DepartureTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime stopArrivalTime);
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == stopStation);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == st.StationId);
-                        TimeSpan? stopDelayTimeSpan = null;
-                        if (stopDelay != null)
-                        {
-                            if (TimeSpan.TryParseExact(stopDelay.Min, "mmmm", null, out TimeSpan temp))
-                            {
-                                stopDelayTimeSpan = temp;
-                            }
-                        }
                         Stop stop = new Stop()
                         {
                             Station = (E_Station)stopStation,
@@ -121,7 +106,7 @@ namespace IsraelRail.Models.ViewModels
                             Departure = stopDepartureTime,
                             Platform = st.Platform,
                             Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == stopStation)?.OmesPercent,
-                            Delay = stopPos != null ? TimeSpan.FromMinutes(stopPos.DifMin * (stopPos.DifType == "AHEAD" ? -1 : 1)) : (stopDelayTimeSpan ?? null)
+                            Delay = Tools.StopDelay(stopPos, stopDelay)
                         };
                         train.Stops.Add(stop);
                     }
@@ -130,14 +115,6 @@ namespace IsraelRail.Models.ViewModels
                     DateTime.TryParseExact(t.ArrivalTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime arrivalTime);
                     Trainposition destPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == destinationStation);
                     Delay destDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == t.DestinationStation);
-                    TimeSpan? destDelayTimeSpan = null;
-                    if (destDelay != null)
-                    {
-                        if (TimeSpan.TryParseExact(destDelay.Min, "mmmm", null, out TimeSpan temp))
-                        {
-                            destDelayTimeSpan = temp;
-                        }
-                    }
                     Stop lastStop = new Stop()
                     {
                         Station = (E_Station)destinationStation,
@@ -145,7 +122,7 @@ namespace IsraelRail.Models.ViewModels
                         Departure = null,
                         Platform = t.DestPlatform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == destinationStation)?.OmesPercent,
-                        Delay = destPos != null ? TimeSpan.FromMinutes(destPos.DifMin * (destPos.DifType == "AHEAD" ? -1 : 1)) : (destDelayTimeSpan ?? null)
+                        Delay = Tools.StopDelay(destPos, destDelay)
                     };
                     train.Stops.Add(lastStop);
                     route.Trains.Add(train);

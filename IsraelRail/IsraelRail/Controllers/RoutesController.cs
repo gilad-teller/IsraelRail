@@ -27,6 +27,7 @@ namespace IsraelRail.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRoutes(int origin, int destination, DateTime dateTime, bool isGoing)
         {
+
             GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isGoing);
             RoutesBuilder routesBuilder = new RoutesBuilder();
             IEnumerable<Models.ViewModels.Route> routes = routesBuilder.BuildRoutes(getRoutesResponse);
