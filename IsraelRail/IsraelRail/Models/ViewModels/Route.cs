@@ -1,4 +1,5 @@
 ﻿using IsraelRail.Models.ApiModels;
+using IsraelRail.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +25,9 @@ namespace IsraelRail.Models.ViewModels
         public bool ReservedSeats { get; set; }
         public ICollection<Stop> Stops { get; set; }
         public E_Station CurrentStation { get; set; }
+        public string CurrentStationName { get; set; }
         public E_Station NextStation { get; set; }
+        public string NextStationName { get; set; }
         public TimeSpan? Delay { get; set; }
         public int Carriages { get; set; }
         public string StopPoint { get; set; }
@@ -34,6 +37,7 @@ namespace IsraelRail.Models.ViewModels
     public class Stop
     {
         public E_Station Station { get; set; }
+        public string StationName { get; set; }
         public DateTime? Arrival { get; set; }
         public DateTime? Departure { get; set; }
         public string Platform { get; set; }
@@ -41,8 +45,20 @@ namespace IsraelRail.Models.ViewModels
         public float? Congestion { get; set; }
     }
 
-    public class RoutesBuilder
+    public interface IRailRouteBuilder
     {
+        IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse);
+    }
+
+    public class RailRoutesBuilder : IRailRouteBuilder
+    {
+        private readonly IStaticStations _staticStations;
+
+        public RailRoutesBuilder(IStaticStations staticStations)
+        {
+            _staticStations = staticStations;
+        }
+
         public IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse)
         {
             List<Route> routes = new List<Route>();
@@ -60,6 +76,8 @@ namespace IsraelRail.Models.ViewModels
                     int.TryParse(t.Trainno, out int trainNumber);
                     Trainposition pos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber);
                     Omasim omasim = routesResponse.Data.Omasim.FirstOrDefault(x => x.TrainNumber == trainNumber);
+                    E_Station currentStation = pos != null ? (E_Station)pos.CurrentStation : E_Station.None;
+                    E_Station nextStation = pos != null ? (E_Station)pos.NextStation : E_Station.None;
                     Train train = new Train()
                     {
                         TrainNumber = trainNumber,
@@ -69,8 +87,10 @@ namespace IsraelRail.Models.ViewModels
                         Direct = t.DirectTrain,
                         ReservedSeats = t.ReservedSeat,
                         Carriages = int.Parse(pos?.TotalKronot ?? "0"),
-                        CurrentStation = pos != null ? (E_Station)pos.CurrentStation : E_Station.None,
-                        NextStation = pos != null ? (E_Station)pos.NextStation : E_Station.None,
+                        CurrentStation = currentStation,
+                        CurrentStationName = _staticStations.GetStation(currentStation),
+                        NextStation = nextStation,
+                        NextStationName = _staticStations.GetStation(nextStation),
                         Equipment = pos?.SugNayad,
                         StopPoint = pos?.StopPoint,
                         Delay = Tools.DelayFromPosition(pos),
@@ -84,6 +104,7 @@ namespace IsraelRail.Models.ViewModels
                     Stop firstStop = new Stop()
                     {
                         Station = (E_Station)originStation,
+                        StationName = _staticStations.GetStation((E_Station)originStation),
                         Arrival = null,
                         Departure = departureTime,
                         Platform = t.Platform,
@@ -102,6 +123,7 @@ namespace IsraelRail.Models.ViewModels
                         Stop stop = new Stop()
                         {
                             Station = (E_Station)stopStation,
+                            StationName = _staticStations.GetStation((E_Station)stopStation),
                             Arrival = stopArrivalTime,
                             Departure = stopDepartureTime,
                             Platform = st.Platform,
@@ -118,6 +140,7 @@ namespace IsraelRail.Models.ViewModels
                     Stop lastStop = new Stop()
                     {
                         Station = (E_Station)destinationStation,
+                        StationName = _staticStations.GetStation((E_Station)destinationStation),
                         Arrival = arrivalTime,
                         Departure = null,
                         Platform = t.DestPlatform,

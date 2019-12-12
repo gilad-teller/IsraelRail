@@ -12,6 +12,7 @@ using IsraelRail.Models.ViewModels;
 using IsraelRail.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace IsraelRail.Controllers
 {
@@ -19,16 +20,21 @@ namespace IsraelRail.Controllers
     {
         private readonly IRail _rail;
         private readonly IGoogle _google;
+        private readonly ILogger<StationsController> _logger;
+        private readonly IStaticStations _staticStations;
 
-        public StationsController(IRail rail, IGoogle google)
+        public StationsController(IRail rail, IGoogle google, IStaticStations staticStations, ILogger<StationsController> logger)
         {
             _rail = rail;
             _google = google;
+            _staticStations = staticStations;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            Dictionary<E_Station, string> allStations = _staticStations.GetAllStations();
+            return View(allStations);
         }
 
         [HttpGet]

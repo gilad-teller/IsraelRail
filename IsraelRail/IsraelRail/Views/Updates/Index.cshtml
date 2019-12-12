@@ -1,4 +1,5 @@
 ﻿@using IsraelRail.Models
+@model Dictionary<E_Station, string>
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -10,17 +11,17 @@
     <div class="form-row">
         <div class="col">
             <select id="oId" class="custom-select">
-                @foreach (E_Station s in Enum.GetValues(typeof(E_Station)).Cast<E_Station>())
+                @foreach (KeyValuePair<E_Station, string> s in Model)
                 {
-                    <option value="@((int)s) ">@s</option>
+                    <option value="@((int)s.Key)">@s.Value</option>
                 }
             </select>
         </div>
         <div class="col">
             <select id="dId" class="custom-select">
-                @foreach (E_Station s in Enum.GetValues(typeof(E_Station)).Cast<E_Station>())
+                @foreach (KeyValuePair<E_Station, string> s in Model)
                 {
-                    <option value="@((int)s) ">@s</option>
+                    <option value="@((int)s.Key)">@s.Value</option>
                 }
             </select>
         </div>
@@ -28,7 +29,7 @@
             <button type="button" id="getDataBtn" class="btn btn-primary" onclick="GetUpdates()">
                 <span id="getDataSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                 <span id="getDataLoad" style="display: none">Loading...</span>
-                <span id="getDataTxt">GetData</span>
+                <span id="getDataTxt">Get Updates</span>
             </button>
         </div>
     </div>

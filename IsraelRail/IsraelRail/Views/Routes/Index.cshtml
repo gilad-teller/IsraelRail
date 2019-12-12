@@ -1,0 +1,52 @@
+﻿@using IsraelRail.Models
+@model Dictionary<E_Station, string>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/js/routes.js"></script>
+<h1>Routes</h1>
+
+<form>
+    <div class="form-row">
+        <div class="col">
+            <select id="oId" class="custom-select">
+                @foreach (KeyValuePair<E_Station, string> s in Model)
+                {
+                    <option value="@((int)s.Key)">@s.Value</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <select id="dId" class="custom-select">
+                @foreach (KeyValuePair<E_Station, string> s in Model)
+                {
+                    <option value="@((int)s.Key)">@s.Value</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <input type="datetime-local" id="dateTime" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+        <div class="col">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isOut" id="rdOut" value="true" checked="checked">
+                <label class="form-check-label" for="rdOut">Out</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isOut" id="rdReturn" value="false">
+                <label class="form-check-label" for="rdReturn">Return</label>
+            </div>
+        </div>
+        <div class="col">
+            <button type="button" id="getRoutesBtn" class="btn btn-primary" onclick="GetRoutes()">
+                <span id="getRoutesSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+                <span id="getRoutesLoad" style="display: none">Loading...</span>
+                <span id="getRoutesTxt">Get Routes</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<div id="content"></div>
+

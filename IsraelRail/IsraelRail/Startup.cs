@@ -1,10 +1,12 @@
-﻿using IsraelRail.Repositories;
+﻿using IsraelRail.Models.ViewModels;
+using IsraelRail.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace IsraelRail
 {
@@ -31,11 +33,13 @@ namespace IsraelRail
             services.AddHttpClient();
             services.AddTransient<IRail, RailRepository>();
             services.AddTransient<IGoogle, GoogleApiRepositoryWithPArking>();
+            services.AddTransient<IRailRouteBuilder, RailRoutesBuilder>();
+            services.AddSingleton<IStaticStations, StaticStationsRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -48,6 +52,7 @@ namespace IsraelRail
                 app.UseHsts();
             }
 
+            loggerFactory.AddLog4Net();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

@@ -7,21 +7,27 @@ using IsraelRail.Models.ApiModels;
 using IsraelRail.Models.ViewModels;
 using IsraelRail.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace IsraelRail.Controllers
 {
     public class UpdatesController : Controller
     {
         private readonly IRail _rail;
+        private readonly ILogger<UpdatesController> _logger;
+        private readonly IStaticStations _staticStations;
 
-        public UpdatesController(IRail rail)
+        public UpdatesController(IRail rail, IStaticStations staticStations, ILogger<UpdatesController> logger)
         {
             _rail = rail;
+            _staticStations = staticStations;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            Dictionary<E_Station, string> allStations = _staticStations.GetAllStations();
+            return View(allStations);
         }
 
         [HttpGet]
