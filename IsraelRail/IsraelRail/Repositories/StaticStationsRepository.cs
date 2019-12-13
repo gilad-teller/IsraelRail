@@ -1,4 +1,5 @@
 ﻿using IsraelRail.Models;
+using IsraelRail.Models.ApiModels;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -18,15 +19,14 @@ namespace IsraelRail.Repositories
 
     public class StaticStationsRepository : IStaticStations
     {
-        private readonly Dictionary<E_Station, string> _stations;
-        private readonly IConfiguration _config;
+        private Dictionary<E_Station, string> _stations;
+        private readonly IRail _rail;
 
-        public StaticStationsRepository(IConfiguration config)
+        public StaticStationsRepository(IRail rail)
         {
-            _config = config;
-            string fileLocation = _config.GetValue<string>("AppSettings:StationsFile");
-            string file = File.ReadAllText(fileLocation, Encoding.UTF8);
-            _stations = JsonConvert.DeserializeObject<Dictionary<E_Station, string>>(file);
+            _rail = rail;
+            GetStationsInforResponse stationsInfo = _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>()).Result;
+            _stations = stationsInfo.Data.ToDictionary(x => (E_Station)int.Parse(x.StationCode), y => y.Hebrew.StationName);
         }
 
         public string GetStation(E_Station station)
