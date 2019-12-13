@@ -18,6 +18,11 @@
     @if (Model.Congestion.HasValue)
     {
         int cong = (int)(Model.Congestion * 100);
-        <div class="progress"><div class="progress-bar" role="progressbar" style="width: @cong%;" aria-valuenow="@cong" aria-valuemin="0" aria-valuemax="100">@cong%</div></div>
+        string barType = "bg-success";
+        if (cong > 20) { barType = "bg-info"; };
+        if (cong > 40) { barType = string.Empty; };
+        if (cong > 60) { barType = "bg-warning"; };
+        if (cong > 80) { barType = "bg-danger"; };
+        <div class="progress"><div class="progress-bar @barType" role="progressbar" style="width: @cong%;" aria-valuenow="@cong" aria-valuemin="0" aria-valuemax="100">@cong%</div></div>
     }
 </p>
