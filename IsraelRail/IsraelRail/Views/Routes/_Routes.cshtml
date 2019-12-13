@@ -7,7 +7,7 @@
     {
         Stop firstTotal = r.Trains.FirstOrDefault().Stops.FirstOrDefault();
         Stop lastTotal = r.Trains.LastOrDefault().Stops.LastOrDefault();
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-body">
                 <h5 class="card-title">@firstTotal.Departure.Value.ToString("HH:mm") <i class="fas fa-arrow-right"></i> @lastTotal.Arrival.Value.ToString("HH:mm") @if (r.IsExchange) { <i class="fas fa-exchange-alt"></i> }</h5>
                 <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @r.EstimatedTime.ToString("g")</h6>

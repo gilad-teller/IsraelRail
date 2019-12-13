@@ -108,7 +108,7 @@ namespace IsraelRail.Models.ViewModels
                         Arrival = null,
                         Departure = departureTime,
                         Platform = t.Platform,
-                        Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == originStation)?.OmesPercent,
+                        Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == originStation && x.OmesPercent >= 0)?.OmesPercent,
                         Delay = Tools.StopDelay(originPos, originDelay)
                     };
                     train.Stops.Add(firstStop);
@@ -127,7 +127,7 @@ namespace IsraelRail.Models.ViewModels
                             Arrival = stopArrivalTime,
                             Departure = stopDepartureTime,
                             Platform = st.Platform,
-                            Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == stopStation)?.OmesPercent,
+                            Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == stopStation && x.OmesPercent >= 0)?.OmesPercent,
                             Delay = Tools.StopDelay(stopPos, stopDelay)
                         };
                         train.Stops.Add(stop);
@@ -144,7 +144,7 @@ namespace IsraelRail.Models.ViewModels
                         Arrival = arrivalTime,
                         Departure = null,
                         Platform = t.DestPlatform,
-                        Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == destinationStation)?.OmesPercent,
+                        Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == destinationStation && x.OmesPercent >= 0)?.OmesPercent,
                         Delay = Tools.StopDelay(destPos, destDelay)
                     };
                     train.Stops.Add(lastStop);
