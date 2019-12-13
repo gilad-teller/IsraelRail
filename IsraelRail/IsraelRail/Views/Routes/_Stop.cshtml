@@ -1,0 +1,23 @@
+﻿@using IsraelRail.Models.ViewModels
+@model Stop
+<p class="card-text">
+    <b>Station:</b> @Model.StationName
+    <b>Platform:</b> @Model.Platform
+    @if (Model.Departure.HasValue)
+    {
+        <b>Departure:</b> @Model.Departure.Value.ToString("HH:mm")
+    }
+    @if (Model.Arrival.HasValue)
+    {
+        <b>Arrival:</b> @Model.Arrival.Value.ToString("HH:mm")
+    }
+    @if (Model.Delay.HasValue)
+    {
+        <span class="badge badge-danger">+@Model.Delay.Value.ToString("g")</span>
+    }
+    @if (Model.Congestion.HasValue)
+    {
+        int cong = (int)(Model.Congestion * 100);
+        <div class="progress"><div class="progress-bar" role="progressbar" style="width: @cong%;" aria-valuenow="@cong" aria-valuemin="0" aria-valuemax="100">@cong%</div></div>
+    }
+</p>

@@ -1,35 +1,47 @@
-﻿@model IEnumerable<IsraelRail.Models.ViewModels.Route>
+﻿@using IsraelRail.Models.ViewModels
+@model IEnumerable<Route>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IsExchange)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EstimatedTime)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsExchange)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EstimatedTime)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div>
+    <hr />
+    @foreach (Route r in Model)
+    {
+        Stop firstTotal = r.Trains.FirstOrDefault().Stops.FirstOrDefault();
+        Stop lastTotal = r.Trains.LastOrDefault().Stops.LastOrDefault();
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">@firstTotal.Departure.Value.ToString("HH:mm") <i class="fas fa-arrow-right"></i> @lastTotal.Arrival.Value.ToString("HH:mm")</h5>
+                <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @r.EstimatedTime.ToString("g")</h6>
+                <ul class="list-group list-group-flush">
+                    @foreach (Train t in r.Trains)
+                    {
+                        Stop first = t.Stops.FirstOrDefault();
+                        Stop last = t.Stops.LastOrDefault();
+					    <li class="list-group-item">
+						    <p class="card-text">
+							    Train @t.TrainNumber
+							    @if (t.Accesability)
+							    {
+								    <i class="fas fa-wheelchair"></i>
+							    }
+							    @if (t.ReservedSeats)
+							    {
+								    <i class="fas fa-couch"></i>
+							    }
+							    @if (t.Equipment != null)
+							    {
+								    <i class="fas fa-train"></i>@t.Equipment
+							    }
+							    @if (t.Carriages > 0)
+							    {
+								    @t.Carriages<span> Carriages</span>
+							    }
+						    </p>
+						    <partial name="_Stop" model="first" />
+						    <partial name="_Stop" model="last" />
+					    </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</div>
