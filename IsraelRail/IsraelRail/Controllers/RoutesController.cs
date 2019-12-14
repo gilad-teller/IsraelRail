@@ -32,18 +32,25 @@ namespace IsraelRail.Controllers
             return View(allStations);
         }
 
-        public async Task<IActionResult> Routes(int origin, int destination, DateTime dateTime, bool isOut)
+        public async Task<IActionResult> Routes(int origin, int destination, DateTime dateTime, bool isDepart)
         {
-            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isOut);
+            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isDepart);
             IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
-            ViewBag.ToShow = routes.FirstOrDefault(x => x.Trains.FirstOrDefault().OrigintStop.Departure >= dateTime).Index;
+            if (isDepart)
+            {
+                ViewBag.ToShow = routes.FirstOrDefault(x => x.Trains.FirstOrDefault().OrigintStop.Departure >= dateTime).Index;
+            }
+            else
+            {
+                ViewBag.ToShow = routes.LastOrDefault(x => x.Trains.LastOrDefault().DestinationStop.Arrival <= dateTime).Index;
+            }
             return PartialView("_Routes", routes);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRoutes(int origin, int destination, DateTime dateTime, bool isOut)
+        public async Task<IActionResult> GetRoutes(int origin, int destination, DateTime dateTime, bool isDepart)
         {
-            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isOut);
+            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isDepart);
             IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
             return Json(routes);
         }

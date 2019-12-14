@@ -6,8 +6,8 @@
     var oId = $("#oId option:selected").val();
     var dId = $("#dId option:selected").val();
     var dateTime = $("#dateTime").val();
-    var isOut = $("input[name=isOut]:checked").val();
-    var url = 'Routes/Routes?origin=' + oId + '&destination=' + dId + '&dateTime=' + dateTime + '&isOut=' + isOut;
+    var isDepart = $("input[name=isDepart]:checked").val();
+    var url = 'Routes/Routes?origin=' + oId + '&destination=' + dId + '&dateTime=' + dateTime + '&isDepart=' + isDepart;
     $.ajax({
         type: "GET",
         url: url,
