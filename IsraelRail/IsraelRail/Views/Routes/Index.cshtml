@@ -9,7 +9,7 @@
 
 <form>
     <div class="form-row">
-        <div class="col">
+        <div class="col-md-3">
             <select id="oId" class="custom-select">
                 @foreach (KeyValuePair<E_Station, string> s in Model)
                 {
@@ -17,7 +17,7 @@
                 }
             </select>
         </div>
-        <div class="col">
+        <div class="col-md-3">
             <select id="dId" class="custom-select">
                 @foreach (KeyValuePair<E_Station, string> s in Model)
                 {
@@ -25,10 +25,10 @@
                 }
             </select>
         </div>
-        <div class="col">
+        <div class="col-md-3">
             <input type="datetime-local" id="dateTime" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
         </div>
-        <div class="col">
+        <div class="col-md-1">
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="isOut" id="rdOut" value="true" checked="checked">
                 <label class="form-check-label" for="rdOut">Out</label>
@@ -38,7 +38,7 @@
                 <label class="form-check-label" for="rdReturn">Return</label>
             </div>
         </div>
-        <div class="col">
+        <div class="col-md-2">
             <button type="button" id="getRoutesBtn" class="btn btn-primary" onclick="GetRoutes()">
                 <span id="getRoutesSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                 <span id="getRoutesLoad" style="display: none">Loading...</span>

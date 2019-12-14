@@ -5,9 +5,9 @@
     <hr />
     @foreach (Route r in Model)
     {
-        Stop firstTotal = r.Trains.FirstOrDefault().Stops.FirstOrDefault();
-        Stop lastTotal = r.Trains.LastOrDefault().Stops.LastOrDefault();
-        <div class="card mb-2">
+        Stop firstTotal = r.Trains.FirstOrDefault().OrigintStop;
+        Stop lastTotal = r.Trains.LastOrDefault().DestinationStop;
+        <div class="card mb-2" id="route-@r.Index">
             <div class="card-body">
                 <h5 class="card-title">@firstTotal.Departure.Value.ToString("HH:mm") <i class="fas fa-arrow-right"></i> @lastTotal.Arrival.Value.ToString("HH:mm") @if (r.IsExchange) { <i class="fas fa-exchange-alt"></i> }</h5>
                 <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @r.EstimatedTime.ToString("g")</h6>
@@ -16,8 +16,6 @@
                     @foreach (Train t in r.Trains)
                     {
                         i++;
-                        Stop first = t.Stops.FirstOrDefault();
-                        Stop last = t.Stops.LastOrDefault();
                         <li class="list-group-item">
                             <p class="card-text">
                                 Train @t.TrainNumber
@@ -38,9 +36,9 @@
                                     @t.Carriages<span> Carriages</span>
                                 }
                             </p>
-                            <partial name="_Stop" model="first" />
+                            <partial name="_Stop" model="t.OrigintStop" />
                             <p class="card-text text-center"><i class="fas fa-arrow-alt-circle-down"></i></p>
-                            <partial name="_Stop" model="last" />
+                            <partial name="_Stop" model="t.DestinationStop" />
                         </li>
                         @if (i != r.Trains.Count)
                         {
@@ -54,3 +52,4 @@
         </div>
     }
 </div>
+<input type="hidden" id="toShow" value="@ViewBag.ToShow" />

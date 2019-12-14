@@ -26,7 +26,7 @@ namespace IsraelRail.Repositories
         {
             _rail = rail;
             GetStationsInforResponse stationsInfo = _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>()).Result;
-            _stations = stationsInfo.Data.ToDictionary(x => (E_Station)int.Parse(x.StationCode), y => y.Hebrew.StationName);
+            _stations = stationsInfo.Data.OrderBy(x => x.Hebrew.StationName).ToDictionary(y => (E_Station)int.Parse(y.StationCode), z => z.Hebrew.StationName);
         }
 
         public string GetStation(E_Station station)

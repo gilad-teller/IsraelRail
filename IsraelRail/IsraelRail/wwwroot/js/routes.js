@@ -16,7 +16,10 @@
             $("#getRoutesBtn").prop('disabled', false);
             $("#getRoutesSpinner").hide();
             $("#getRoutesLoad").hide();
-            $("#getRoutesTxt").show();
+            $("#getRoutesTxt").show();debugger
+            var toShow = $("#toShow").val();
+            var elementToShow = document.getElementById("route-" + toShow);
+            elementToShow.scrollIntoView();
         },
         error: function (data) {
             console.log(data);

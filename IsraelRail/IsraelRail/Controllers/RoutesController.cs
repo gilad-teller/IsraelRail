@@ -36,6 +36,7 @@ namespace IsraelRail.Controllers
         {
             GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isOut);
             IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
+            ViewBag.ToShow = routes.FirstOrDefault(x => x.Trains.FirstOrDefault().OrigintStop.Departure >= dateTime).Index;
             return PartialView("_Routes", routes);
         }
 
