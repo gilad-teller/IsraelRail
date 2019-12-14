@@ -36,9 +36,18 @@
                                     @t.Carriages<span> Carriages</span>
                                 }
                             </p>
-                            <partial name="_Stop" model="t.OrigintStop" />
-                            <p class="card-text text-center"><i class="fas fa-arrow-alt-circle-down"></i></p>
-                            <partial name="_Stop" model="t.DestinationStop" />
+                            <div id="short-@r.Index-@t.TrainNumber">
+                                <partial name="_Stop" model="t.OrigintStop" />
+                                <p class="card-text text-center"><i class="fas fa-arrow-alt-circle-down hand" onclick="ToggleShortLong(@r.Index, @t.TrainNumber)"></i></p>
+                                <partial name="_Stop" model="t.DestinationStop" />
+                            </div>
+                            <div id="long-@r.Index-@t.TrainNumber" style="display: none">
+                                <i class="fas fa-times hand" onclick="ToggleShortLong(@r.Index, @t.TrainNumber)"></i>
+                                @foreach (Stop s in t.Stops)
+                                {
+                                    <partial name="_Stop" model="s" />
+                                }
+                            </div>
                         </li>
                         @if (i != r.Trains.Count)
                         {

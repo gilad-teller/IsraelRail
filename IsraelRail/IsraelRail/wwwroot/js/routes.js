@@ -16,7 +16,7 @@
             $("#getRoutesBtn").prop('disabled', false);
             $("#getRoutesSpinner").hide();
             $("#getRoutesLoad").hide();
-            $("#getRoutesTxt").show();debugger
+            $("#getRoutesTxt").show();
             var toShow = $("#toShow").val();
             var elementToShow = document.getElementById("route-" + toShow);
             elementToShow.scrollIntoView();
@@ -30,4 +30,11 @@
             $("#getRoutesTxt").show();
         }
     });
+}
+
+function ToggleShortLong(routeIndex, trainNumber) {
+    var short = $("#short-" + routeIndex + "-" + trainNumber);
+    var long = $("#long-" + routeIndex + "-" + trainNumber);
+    short.toggle();
+    long.toggle();
 }
