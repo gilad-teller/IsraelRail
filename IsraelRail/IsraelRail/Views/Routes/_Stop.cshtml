@@ -1,6 +1,15 @@
 ﻿@using IsraelRail.Models.ViewModels
 @model Stop
 <p class="card-text">
+    @if (Model.IsCurrent)
+    {
+        <div class="spinner-grow spinner-grow-sm" role="status">
+            <span class="sr-only">█</span>
+        </div>
+    }
+    <div class="spinner-grow spinner-grow-sm" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
     <b>Station:</b> @Model.StationName
     <b>Platform:</b> @Model.Platform
     @if (Model.Departure.HasValue)

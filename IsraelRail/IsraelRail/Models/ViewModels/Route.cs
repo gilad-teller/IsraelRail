@@ -46,6 +46,7 @@ namespace IsraelRail.Models.ViewModels
         public string Platform { get; set; }
         public TimeSpan? Delay { get; set; }
         public float? Congestion { get; set; }
+        public bool IsCurrent { get; set; }
     }
 
     public interface IRailRouteBuilder
@@ -115,7 +116,8 @@ namespace IsraelRail.Models.ViewModels
                         Departure = departureTime,
                         Platform = t.Platform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == originStation && x.OmesPercent >= 0)?.OmesPercent,
-                        Delay = Tools.StopDelay(originPos, originDelay)
+                        Delay = Tools.StopDelay(originPos, originDelay),
+                        IsCurrent = (E_Station)originStation == currentStation && nextStation == E_Station.None
                     };
                     train.OrigintStop = firstStop;
                     midwayStops.Add(firstStop);
@@ -135,7 +137,8 @@ namespace IsraelRail.Models.ViewModels
                             Departure = stopDepartureTime,
                             Platform = st.Platform,
                             Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == stopStation && x.OmesPercent >= 0)?.OmesPercent,
-                            Delay = Tools.StopDelay(stopPos, stopDelay)
+                            Delay = Tools.StopDelay(stopPos, stopDelay),
+                            IsCurrent = (E_Station)stopStation == currentStation && nextStation == E_Station.None
                         };
                         midwayStops.Add(stop);
                     }
@@ -152,7 +155,8 @@ namespace IsraelRail.Models.ViewModels
                         Departure = null,
                         Platform = t.DestPlatform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == destinationStation && x.OmesPercent >= 0)?.OmesPercent,
-                        Delay = Tools.StopDelay(destPos, destDelay)
+                        Delay = Tools.StopDelay(destPos, destDelay),
+                        IsCurrent = (E_Station)destinationStation == currentStation && nextStation == E_Station.None
                     };
                     train.DestinationStop = lastStop;
                     midwayStops.Add(lastStop);
@@ -171,7 +175,8 @@ namespace IsraelRail.Models.ViewModels
                             StationName = _staticStations.GetStation((E_Station)s.StationNumber),
                             Arrival = stopArrivalTime,
                             Congestion = s.OmesPercent,
-                            Delay = Tools.StopDelay(stopPos, stopDelay)
+                            Delay = Tools.StopDelay(stopPos, stopDelay),
+                            IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
                         };
                         stopsUntilOrigin.Add(stop);
                     }
@@ -189,7 +194,8 @@ namespace IsraelRail.Models.ViewModels
                             StationName = _staticStations.GetStation((E_Station)s.StationNumber),
                             Arrival = stopArrivalTime,
                             Congestion = s.OmesPercent,
-                            Delay = Tools.StopDelay(stopPos, stopDelay)
+                            Delay = Tools.StopDelay(stopPos, stopDelay),
+                            IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
                         };
                         stopsAfterDestination.Add(stop);
                     }
