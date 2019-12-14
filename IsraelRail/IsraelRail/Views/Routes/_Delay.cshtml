@@ -1,0 +1,12 @@
+﻿@model TimeSpan?
+@if (Model.HasValue)
+{
+    if (Model.Value.Ticks > 0)
+    {
+        <span class="badge badge-danger">+@Model.Value.ToString("g")</span>
+    }
+    else
+    {
+        <span class="badge badge-success">@Model.Value.ToString("g")</span>
+    }
+}

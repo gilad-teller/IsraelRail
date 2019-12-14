@@ -17,10 +17,7 @@
     {
         <b>Arrival:</b> @Model.Arrival.Value.ToString("HH:mm")
     }
-    @if (Model.Delay.HasValue)
-    {
-        <span class="badge badge-danger">+@Model.Delay.Value.ToString("g")</span>
-    }
+    <partial name="_Delay" model="Model.Delay" />
     @if (Model.Congestion.HasValue)
     {
         int cong = (int)(Model.Congestion * 100);

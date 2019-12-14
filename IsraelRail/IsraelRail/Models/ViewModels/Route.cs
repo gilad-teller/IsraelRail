@@ -84,6 +84,7 @@ namespace IsraelRail.Models.ViewModels
                     Omasim omasim = routesResponse.Data.Omasim.FirstOrDefault(x => x.TrainNumber == trainNumber);
                     E_Station currentStation = pos != null ? (E_Station)pos.CurrentStation : E_Station.None;
                     E_Station nextStation = pos != null ? (E_Station)pos.NextStation : E_Station.None;
+                    Delay currentDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno);
                     Train train = new Train()
                     {
                         TrainNumber = trainNumber,
@@ -99,7 +100,7 @@ namespace IsraelRail.Models.ViewModels
                         NextStationName = _staticStations.GetStation(nextStation),
                         Equipment = pos?.SugNayad,
                         StopPoint = pos?.StopPoint,
-                        Delay = Tools.DelayFromPosition(pos),
+                        Delay = Tools.StopDelay(pos, currentDelay),
                         Stops = new List<Stop>()
                     };
                     List<Stop> midwayStops = new List<Stop>();
