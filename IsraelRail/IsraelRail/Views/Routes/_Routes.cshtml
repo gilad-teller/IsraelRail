@@ -9,7 +9,8 @@
         Stop lastTotal = r.Trains.LastOrDefault().DestinationStop;
         <div class="card mb-2" id="route-@r.Index">
             <div class="card-body">
-                <h5 class="card-title">@firstTotal.Departure.Value.ToString("HH:mm") <i class="fas fa-arrow-right"></i> @lastTotal.Arrival.Value.ToString("HH:mm") @if (r.IsExchange) { <i class="fas fa-exchange-alt"></i> }</h5>
+                <h5 class="card-title">@firstTotal.Departure.Value.ToString("HH:mm") <i class="fas fa-arrow-right"></i> @lastTotal.Arrival.Value.ToString("HH:mm") @if (r.IsExchange)
+                {<i class="fas fa-exchange-alt"></i>}</h5>
                 <h6 class="card-subtitle mb-2 text-muted"><i class="far fa-clock"></i> @r.EstimatedTime.ToString("g")</h6>
                 <ul class="list-group list-group-flush">
                     @{int i = 0;}
@@ -29,7 +30,7 @@
                                 }
                                 @if (t.Equipment != null)
                                 {
-                                    <i class="fas fa-train"></i>@t.Equipment
+                                    <span class="hand" data-toggle="modal" data-target="#modal-@t.Equipment"><i class="fas fa-train"></i>@t.Equipment</span>
                                 }
                                 @if (t.Carriages > 0)
                                 {
@@ -69,3 +70,59 @@
     }
 </div>
 <input type="hidden" id="toShow" value="@ViewBag.ToShow" />
+
+<div class="modal fade" id="modal-SIM" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Siemens Viaggio Light</h4>
+            </div>
+            <div class="modal-body">
+                <img src="~/images/SIM.jpg" alt="Siemens Viaggio Light" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-DD" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Bombardier Double-deck Coach 4<sup>th</sup> Generation</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img src="~/images/DD.jpg" alt="Bombardier Double-deck Coach 4th Generation" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-IC3" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">ABB Scandia IC3</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img src="~/images/IC3.jpg" alt="ABB Scandia IC3" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-PP" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Alstom Mo-Do</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img src="~/images/PP.jpg" alt="Alstom Mo-Do" />
+            </div>
+        </div>
+    </div>
+</div>

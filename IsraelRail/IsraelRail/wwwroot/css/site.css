@@ -58,3 +58,11 @@ body {
 .hand {
     cursor: pointer;
 }
+
+.modal-dialog {
+    text-align: center;
+}
+
+.modal-content {
+    display: inline-block;
+}
