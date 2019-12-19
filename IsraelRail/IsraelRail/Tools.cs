@@ -36,11 +36,6 @@ namespace IsraelRail
             return ts;
         }
 
-        public static DateTime NowInIsrael
-        {
-            get { return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Israel Standard Time"); }
-        }
-
         public static Models.ViewModels.Route SelectRoute(IEnumerable<Models.ViewModels.Route> routes, DateTime dateTime, bool isDepart)
         {
             Models.ViewModels.Route selectedRoute = null;

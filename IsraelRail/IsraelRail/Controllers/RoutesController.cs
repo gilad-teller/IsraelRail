@@ -16,18 +16,21 @@ namespace IsraelRail.Controllers
         private readonly IRail _rail;
         private readonly IRailRouteBuilder _railRouteBuilder;
         private readonly IStaticStations _staticStations;
+        private readonly ITime _time;
         private readonly ILogger<RoutesController> _logger;
 
-        public RoutesController(IRail rail, IRailRouteBuilder railRouteBuilder, IStaticStations staticStations, ILogger<RoutesController> logger)
+        public RoutesController(IRail rail, IRailRouteBuilder railRouteBuilder, IStaticStations staticStations, ITime time, ILogger<RoutesController> logger)
         {
             _rail = rail;
             _railRouteBuilder = railRouteBuilder;
             _staticStations = staticStations;
+            _time = time;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
+            ViewBag.Now = _time.NowInLocal();
             Dictionary<E_Station, string> allStations = _staticStations.GetAllStations();
             return View(allStations);
         }
@@ -47,7 +50,7 @@ namespace IsraelRail.Controllers
             GetRoutesResponse getNextWeekRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, nextWeek, isDepart);
             IEnumerable<Models.ViewModels.Route> nextWeekRoutes = _railRouteBuilder.BuildRoutes(getNextWeekRoutesResponse);
             Models.ViewModels.Route selectedRoute = Tools.SelectRoute(nextWeekRoutes, nextWeek, isDepart);
-            DateTime nowNextWeek = Tools.NowInIsrael.AddDays(7);
+            DateTime nowNextWeek = _time.NowInLocal().AddDays(7);
             Models.ViewModels.Train selectedTrain = selectedRoute.Trains.FirstOrDefault(x => x.DestinationStop.StopTime.FirstOrDefault() >= nowNextWeek);
             Stop selectedStop = selectedTrain.Stops.FirstOrDefault(x => x.StopTime.FirstOrDefault() >= nowNextWeek);
             E_Station currentOrigin = selectedStop.Station;

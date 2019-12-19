@@ -35,6 +35,7 @@ namespace IsraelRail
             services.AddTransient<IGoogle, GoogleApiRepositoryWithPArking>();
             services.AddTransient<IRailRouteBuilder, RailRoutesBuilder>();
             services.AddSingleton<IStaticStations, StaticStationsRepository>();
+            services.AddSingleton<ITime, TimeRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
