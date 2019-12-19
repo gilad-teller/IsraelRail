@@ -36,16 +36,27 @@ namespace IsraelRail.Controllers
         {
             GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isDepart);
             IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
-            Models.ViewModels.Route routeToShow = null;
-            if (isDepart)
-            {
-                routeToShow = routes.FirstOrDefault(x => x.Trains.FirstOrDefault().OrigintStop.Departure >= dateTime) ?? routes.LastOrDefault();
-            }
-            else
-            {
-                routeToShow = routes.LastOrDefault(x => x.Trains.LastOrDefault().DestinationStop.Arrival <= dateTime) ?? routes.FirstOrDefault();
-            }
-            ViewBag.ToShow = routeToShow.Index;
+            Models.ViewModels.Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
+            ViewBag.ToShow = routeToShow != null ? routeToShow.Index : 0;
+            return PartialView("_Routes", routes);
+        }
+
+        public async Task<IActionResult> Advanced(int origin, int destination, DateTime dateTime, bool isDepart)
+        {
+            DateTime nextWeek = dateTime.AddDays(7);
+            GetRoutesResponse getNextWeekRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, nextWeek, isDepart);
+            IEnumerable<Models.ViewModels.Route> nextWeekRoutes = _railRouteBuilder.BuildRoutes(getNextWeekRoutesResponse);
+            Models.ViewModels.Route selectedRoute = Tools.SelectRoute(nextWeekRoutes, nextWeek, isDepart);
+            DateTime nowNextWeek = Tools.NowInIsrael.AddDays(7);
+            Models.ViewModels.Train selectedTrain = selectedRoute.Trains.FirstOrDefault(x => x.DestinationStop.StopTime.FirstOrDefault() >= nowNextWeek);
+            Stop selectedStop = selectedTrain.Stops.FirstOrDefault(x => x.StopTime.FirstOrDefault() >= nowNextWeek);
+            E_Station currentOrigin = selectedStop.Station;
+
+            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes(currentOrigin, (E_Station)destination, dateTime, isDepart);
+            IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
+            routes = routes.Where(x => nextWeekRoutes.Contains(x));
+            Models.ViewModels.Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
+            ViewBag.ToShow = routeToShow != null ? routeToShow.Index : 0;
             return PartialView("_Routes", routes);
         }
 

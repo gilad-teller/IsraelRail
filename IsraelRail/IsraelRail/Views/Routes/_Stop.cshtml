@@ -8,15 +8,11 @@
         </div>
     }
     <b>Station:</b> @Model.StationName
-    <b>Platform:</b> @Model.Platform
-    @if (Model.Departure.HasValue)
+    @if (!string.IsNullOrWhiteSpace(Model.Platform))
     {
-        <b>Departure:</b> @Model.Departure.Value.ToString("HH:mm")
+        <b>Platform:</b> @Model.Platform
     }
-    @if (Model.Arrival.HasValue)
-    {
-        <b>Arrival:</b> @Model.Arrival.Value.ToString("HH:mm")
-    }
+    <b>Time: </b> @string.Join('-', Model.StopTime.Select(x => x.ToString("HH:mm")))
     <partial name="_Delay" model="Model.Delay" />
     @if (Model.Congestion.HasValue)
     {

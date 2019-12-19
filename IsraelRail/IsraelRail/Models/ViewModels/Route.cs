@@ -14,6 +14,25 @@ namespace IsraelRail.Models.ViewModels
         public bool IsExchange { get; set; }
         public TimeSpan EstimatedTime { get; set; }
         public ICollection<Train> Trains { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Route route)
+            {
+                return route.Trains.Count == Trains.Count && route.Trains.SequenceEqual(Trains);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 19;
+            foreach (Train t in Trains)
+            {
+                hashCode = hashCode * 31 + t.GetHashCode();
+            }
+            return hashCode;
+        }
     }
 
     public class Train
@@ -35,14 +54,27 @@ namespace IsraelRail.Models.ViewModels
         public string Equipment { get; set; }
         public Stop OrigintStop { get; set; }
         public Stop DestinationStop { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Train train)
+            {
+                return train.TrainNumber == TrainNumber;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return TrainNumber.GetHashCode();
+        }
     }
 
     public class Stop
     {
         public E_Station Station { get; set; }
         public string StationName { get; set; }
-        public DateTime? Arrival { get; set; }
-        public DateTime? Departure { get; set; }
+        public IEnumerable<DateTime> StopTime { get; set; }
         public string Platform { get; set; }
         public TimeSpan? Delay { get; set; }
         public float? Congestion { get; set; }
@@ -113,8 +145,10 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Station = (E_Station)originStation,
                         StationName = _staticStations.GetStation((E_Station)originStation),
-                        Arrival = null,
-                        Departure = departureTime,
+                        StopTime = new List<DateTime>()
+                        {
+                            departureTime
+                        },
                         Platform = t.Platform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == originStation && x.OmesPercent >= 0)?.OmesPercent,
                         Delay = Tools.StopDelay(originPos, originDelay),
@@ -126,16 +160,19 @@ namespace IsraelRail.Models.ViewModels
                     foreach (Stopstation st in t.StopStations)
                     {
                         int.TryParse(st.StationId, out int stopStation);
+                        DateTime.TryParseExact(st.ArrivalTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime stopArrivalTime);
                         DateTime.TryParseExact(st.DepartureTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime stopDepartureTime);
-                        DateTime.TryParseExact(st.DepartureTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime stopArrivalTime);
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == stopStation);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == st.StationId);
                         Stop stop = new Stop()
                         {
                             Station = (E_Station)stopStation,
                             StationName = _staticStations.GetStation((E_Station)stopStation),
-                            Arrival = stopArrivalTime,
-                            Departure = stopDepartureTime,
+                            StopTime = new List<DateTime>()
+                            {
+                                stopArrivalTime,
+                                stopDepartureTime
+                            },
                             Platform = st.Platform,
                             Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == stopStation && x.OmesPercent >= 0)?.OmesPercent,
                             Delay = Tools.StopDelay(stopPos, stopDelay),
@@ -152,8 +189,10 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Station = (E_Station)destinationStation,
                         StationName = _staticStations.GetStation((E_Station)destinationStation),
-                        Arrival = arrivalTime,
-                        Departure = null,
+                        StopTime = new List<DateTime>()
+                        {
+                            arrivalTime
+                        },
                         Platform = t.DestPlatform,
                         Congestion = omasim.Stations.FirstOrDefault(x => x.StationNumber == destinationStation && x.OmesPercent >= 0)?.OmesPercent,
                         Delay = Tools.StopDelay(destPos, destDelay),
@@ -168,13 +207,16 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == s.StationNumber);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == s.StationNumber.ToString());
-                        string stopTimeStr = $"{train.OrigintStop.Departure.Value.ToString("dd/MM/yyyy")} {s.Time}";
-                        DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopArrivalTime);
+                        string stopTimeStr = $"{train.OrigintStop.StopTime.FirstOrDefault().ToString("dd/MM/yyyy")} {s.Time}";
+                        DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopTime);
                         Stop stop = new Stop()
                         {
                             Station = (E_Station)s.StationNumber,
                             StationName = _staticStations.GetStation((E_Station)s.StationNumber),
-                            Arrival = stopArrivalTime,
+                            StopTime = new List<DateTime>()
+                            {
+                                stopTime
+                            },
                             Congestion = s.OmesPercent,
                             Delay = Tools.StopDelay(stopPos, stopDelay),
                             IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
@@ -187,13 +229,16 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == s.StationNumber);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == s.StationNumber.ToString());
-                        string stopTimeStr = $"{train.DestinationStop.Arrival.Value.ToString("dd/MM/yyyy")} {s.Time}";
-                        DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopArrivalTime);
+                        string stopTimeStr = $"{train.DestinationStop.StopTime.FirstOrDefault().ToString("dd/MM/yyyy")} {s.Time}";
+                        DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopTime);
                         Stop stop = new Stop()
                         {
                             Station = (E_Station)s.StationNumber,
                             StationName = _staticStations.GetStation((E_Station)s.StationNumber),
-                            Arrival = stopArrivalTime,
+                            StopTime = new List<DateTime>()
+                            {
+                                stopTime
+                            },
                             Congestion = s.OmesPercent,
                             Delay = Tools.StopDelay(stopPos, stopDelay),
                             IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
