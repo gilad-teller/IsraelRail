@@ -38,13 +38,12 @@ namespace IsraelRail.Repositories
             };
             Uri uri = ub.Uri;
             HttpClient client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
+            using (HttpResponseMessage response = await client.GetAsync(uri))
             {
+                response.EnsureSuccessStatusCode();
                 GetStationsInforResponse result = await response.Content.ReadAsAsync<GetStationsInforResponse>();
                 return result;
             }
-            return null;
         }
 
         public async Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<E_Station> stations)
@@ -56,13 +55,12 @@ namespace IsraelRail.Repositories
             };
             Uri uri = ub.Uri;
             HttpClient client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
+            using (HttpResponseMessage response = await client.GetAsync(uri))
             {
+                response.EnsureSuccessStatusCode();
                 GetStationsInforResponse result = await response.Content.ReadAsAsync<GetStationsInforResponse>();
                 return result;
             }
-            return null;
         }
 
         public async Task<GetStationsInfoResponse> GetStationsInfo(E_Station origin, E_Station destination)
@@ -76,13 +74,12 @@ namespace IsraelRail.Repositories
             };
             Uri uri = ub.Uri;
             HttpClient client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
+            using (HttpResponseMessage response = await client.GetAsync(uri))
             {
+                response.EnsureSuccessStatusCode();
                 GetStationsInfoResponse result = await response.Content.ReadAsAsync<GetStationsInfoResponse>();
                 return result;
             }
-            return null;
         }
 
         public async Task<GetRoutesResponse> GetRoutes(E_Station origin, E_Station destination, DateTime dateTime, bool isGoing)
@@ -100,13 +97,16 @@ namespace IsraelRail.Repositories
             };
             Uri uri = ub.Uri;
             HttpClient client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
+            using (HttpResponseMessage response = await client.GetAsync(uri))
             {
+                response.EnsureSuccessStatusCode();
                 GetRoutesResponse result = await response.Content.ReadAsAsync<GetRoutesResponse>();
+                if (result.Data.Error != null)
+                {
+                    throw new Exception(result.Data.Error.Description);
+                }
                 return result;
             }
-            return null;
         }
     }
 }

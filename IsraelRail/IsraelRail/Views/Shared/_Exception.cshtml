@@ -1,0 +1,13 @@
+﻿@model Exception
+
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="display-4">@Model.Message</h1>
+        <p class="lead">@Model.StackTrace</p>
+        @if (Model.InnerException != null)
+        {
+            <hr class="my-4">
+            <partial name="_Exception" model="Model.InnerException" />
+        }
+    </div>
+</div>

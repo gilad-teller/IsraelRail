@@ -12,7 +12,7 @@ namespace IsraelRail.Models.ApiModels
 
     public class GetRoutesResponseData
     {
-        public object Error { get; set; }
+        public Error Error { get; set; }
         public Details Details { get; set; }
         public int StartIndex { get; set; }
         public Route[] Routes { get; set; }
@@ -21,6 +21,13 @@ namespace IsraelRail.Models.ApiModels
         public Delay[] Delays { get; set; }
         public Trainposition[] TrainPositions { get; set; }
         public Omasim[] Omasim { get; set; }
+    }
+
+    public class Error
+    {
+        public string ErrorId { get; set; }
+        public string Description { get; set; }
+        public string Exception { get; set; }
     }
 
     public class Details
