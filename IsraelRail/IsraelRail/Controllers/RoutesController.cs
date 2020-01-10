@@ -75,6 +75,12 @@ namespace IsraelRail.Controllers
                 Models.ViewModels.Train selectedTrain = selectedRoute.Trains.FirstOrDefault(x => x.DestinationStop.StopTime.FirstOrDefault() >= nowNextWeek);
                 Stop selectedStop = selectedTrain.Stops.FirstOrDefault(x => x.StopTime.FirstOrDefault() >= nowNextWeek);
                 E_Station currentOrigin = selectedStop.Station;
+                if (currentOrigin == (E_Station)destination)
+                {
+                    int selectedIndex = selectedTrain.Stops.IndexOf(selectedStop);
+                    selectedStop = selectedTrain.Stops.ElementAtOrDefault(selectedIndex - 1);
+                    currentOrigin = selectedStop.Station;
+                }
 
                 GetRoutesResponse getRoutesResponse = await _rail.GetRoutes(currentOrigin, (E_Station)destination, dateTime, isDepart);
                 IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse);
@@ -83,6 +89,16 @@ namespace IsraelRail.Controllers
                 {
                     return PartialView("_NoRoutes");
                 }
+
+                foreach (Models.ViewModels.Route route in routes)
+                {
+                    Stop ori = route.Trains.FirstOrDefault().Stops.FirstOrDefault(x => x.Station == (E_Station)origin);
+                    if (ori != null)
+                    {
+                        route.Trains.FirstOrDefault().OrigintStop = ori;
+                    }
+                }
+
                 Models.ViewModels.Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
                 ViewBag.ToShow = routeToShow != null ? routeToShow.Index : 0;
                 return PartialView("_Routes", routes);
