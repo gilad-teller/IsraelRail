@@ -39,11 +39,11 @@ namespace IsraelRail.Repositories
         }
     }
 
-    public class GoogleApiRepositoryWithPArking : IGoogle
+    public class GoogleApiRepositoryWithParking : IGoogle
     {
         private readonly IConfiguration _config;
 
-        public GoogleApiRepositoryWithPArking(IConfiguration config)
+        public GoogleApiRepositoryWithParking(IConfiguration config)
         {
             _config = config;
         }

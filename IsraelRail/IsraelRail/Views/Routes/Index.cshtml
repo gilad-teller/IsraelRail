@@ -1,27 +1,35 @@
-﻿@using IsraelRail.Models
-@model Dictionary<E_Station, string>
+﻿@using IsraelRail.Models.ViewModels
+@model IEnumerable<StationLightData>
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script src="~/js/routes.js"></script>
+<script src="~/js/position.js"></script>
+<script>
+    var stationsData = @Html.Raw(Json.Serialize(Model));
+    navigator.geolocation.getCurrentPosition(SetPosition, FailedPosition);
+</script>
 <h1>Routes</h1>
 
 <form>
     <div class="form-row">
-        <div class="col-md-3">
-            <select id="oId" class="custom-select">
-                @foreach (KeyValuePair<E_Station, string> s in Model)
+        <div class="col-md-2">
+            <select id="oId" class="custom-select userStation">
+                @foreach (StationLightData s in Model)
                 {
-                    <option value="@((int)s.Key)">@s.Value</option>
+                    <option value="@((int)s.Station)">@s.Name</option>
                 }
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-1">
+            <i class="fas fa-arrows-alt-h fa-2x cent hand" onclick="SwitchStations()"></i>
+        </div>
+        <div class="col-md-2">
             <select id="dId" class="custom-select">
-                @foreach (KeyValuePair<E_Station, string> s in Model)
+                @foreach (StationLightData s in Model)
                 {
-                    <option value="@((int)s.Key)">@s.Value</option>
+                    <option value="@((int)s.Station)">@s.Name</option>
                 }
             </select>
         </div>
@@ -38,7 +46,7 @@
                 <label class="form-check-label" for="rdReturn">Arrive</label>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <button type="button" id="getRoutesBtn" class="btn btn-primary" onclick="GetRoutes()">
                 <span id="getRoutesSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                 <span id="getRoutesLoad" style="display: none">Loading...</span>

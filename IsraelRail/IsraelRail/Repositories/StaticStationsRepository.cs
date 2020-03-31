@@ -1,44 +1,53 @@
 ﻿using IsraelRail.Models;
 using IsraelRail.Models.ApiModels;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+using IsraelRail.Models.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IsraelRail.Repositories
 {
     public interface IStaticStations
     {
         string GetStation(E_Station station);
-        Dictionary<E_Station, string> GetAllStations();
+        IEnumerable<StationLightData> GetAllStations();
     }
 
     public class StaticStationsRepository : IStaticStations
     {
-        private Dictionary<E_Station, string> _stations;
+        private List<StationLightData> _stations;
         private readonly IRail _rail;
 
         public StaticStationsRepository(IRail rail)
         {
             _rail = rail;
             GetStationsInforResponse stationsInfo = _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>()).Result;
-            _stations = stationsInfo.Data.OrderBy(x => x.Hebrew.StationName).ToDictionary(y => (E_Station)int.Parse(y.StationCode), z => z.Hebrew.StationName);
+            IEnumerable<GetStationsInforResponseData> stations = stationsInfo.Data.OrderBy(x => x.Hebrew.StationName);
+            _stations = new List<StationLightData>();
+            foreach (GetStationsInforResponseData s in stations)
+            {
+                StationLightData lightData = new StationLightData()
+                {
+                    Station = (E_Station)int.Parse(s.StationCode),
+                    Name = s.Hebrew.StationName,
+                    Latitude = s.General.Lat,
+                    Longitude = s.General.Long
+                };
+                _stations.Add(lightData);
+            }
         }
 
         public string GetStation(E_Station station)
         {
-            if (_stations.ContainsKey(station))
+            StationLightData lightData = _stations.FirstOrDefault(x => x.Station == station);
+            if (lightData != null)
             {
-                return _stations[station];
+                return lightData.Name;
             }
             return null;
         }
 
-        public Dictionary<E_Station, string> GetAllStations()
+        public IEnumerable<StationLightData> GetAllStations()
         {
             return _stations;
         }

@@ -70,3 +70,9 @@ body {
 img.eq {
     width: 100%
 }
+
+.cent {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}

@@ -1,19 +1,24 @@
-﻿@using IsraelRail.Models
-@model Dictionary<E_Station, string>
+﻿@using IsraelRail.Models.ViewModels
+@model IEnumerable<StationLightData>
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script src="~/js/stations.js"></script>
+<script src="~/js/position.js"></script>
+<script>
+    var stationsData = @Html.Raw(Json.Serialize(Model));
+    navigator.geolocation.getCurrentPosition(SetPosition, FailedPosition);
+</script>
 <h1>Stations</h1>
 
 <form>
     <div class="form-row">
         <div class="col">
-            <select id="station" class="custom-select">
-                @foreach (KeyValuePair<E_Station, string> s in Model)
+            <select id="station" class="custom-select userStation">
+                @foreach (StationLightData s in Model)
                 {
-                    <option value="@((int)s.Key)">@s.Value</option>
+                    <option value="@((int)s.Station)">@s.Name</option>
                 }
             </select>
         </div>

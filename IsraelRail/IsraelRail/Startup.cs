@@ -32,7 +32,7 @@ namespace IsraelRail
             services.AddApplicationInsightsTelemetry();
             services.AddHttpClient();
             services.AddTransient<IRail, RailRepository>();
-            services.AddTransient<IGoogle, GoogleApiRepositoryWithPArking>();
+            services.AddTransient<IGoogle, GoogleApiRepositoryWithParking>();
             services.AddTransient<IRailRouteBuilder, RailRoutesBuilder>();
             services.AddSingleton<IStaticStations, StaticStationsRepository>();
             services.AddSingleton<ITime, TimeRepository>();

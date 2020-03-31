@@ -72,3 +72,10 @@ function ToggleShortLong(routeIndex, trainNumber) {
     short.toggle();
     long.toggle();
 }
+
+function SwitchStations() {
+    var oId = $("#oId option:selected").val();
+    var dId = $("#dId option:selected").val();
+    $("#oId").val(dId);
+    $("#dId").val(oId);
+}

@@ -159,4 +159,12 @@ namespace IsraelRail.Models.ViewModels
             Saturday = cashier.DaySNight;
         }
     }
+
+    public class StationLightData
+    {
+        public E_Station Station { get; set; }
+        public string Name { get; set; }
+        public float Longitude { get; set; }
+        public float Latitude { get; set; }
+    }
 }

@@ -26,7 +26,7 @@ namespace IsraelRail.Controllers
 
         public IActionResult Index()
         {
-            Dictionary<E_Station, string> allStations = _staticStations.GetAllStations();
+            IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
             return View(allStations);
         }
 
