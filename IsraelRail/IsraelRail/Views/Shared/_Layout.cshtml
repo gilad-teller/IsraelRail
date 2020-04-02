@@ -18,6 +18,7 @@
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <script src="~/lib/js-cookie/js.cookie.min.js"></script>
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
@@ -80,7 +81,6 @@
         </script>
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>

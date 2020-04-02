@@ -10,11 +10,16 @@
             minStation = s.station;
         }
     }
-    $(".userStation").val(minStation);
+    if (minStation != 0) {
+        $(".userStation").val(minStation);
+    }
+    GetStations();
 }
 
-function FailedPosition() {
+function FailedPosition(err) {
     console.error('Failed to get user position');
+    console.error(err);
+    GetStations();
 }
 
 function GetDistance(lat, lon, station) {
@@ -23,4 +28,19 @@ function GetDistance(lat, lon, station) {
     var latSqr = latDiff * latDiff;
     var lonSqr = lonDiff * lonDiff;
     return Math.sqrt(latSqr + lonSqr);
+}
+
+function GetStations() {
+    var oId = Cookies.get('oId');
+    var dId = Cookies.get('dId');
+    var oIdElement = $("#oId");
+    var dIdElement = $("#dId");
+    if (oId != undefined && dId != undefined) {
+        if (oId == oIdElement.val()) {
+            dIdElement.val(dId);
+        }
+        else {
+            dIdElement.val(oId);
+        }
+    }
 }
