@@ -30,6 +30,7 @@ namespace IsraelRail
             });
 
             services.AddApplicationInsightsTelemetry();
+            services.AddLogging();
             services.AddHttpClient();
             services.AddTransient<IRail, RailRepository>();
             services.AddTransient<IGoogle, GoogleApiRepositoryWithParking>();
@@ -53,7 +54,6 @@ namespace IsraelRail
                 app.UseHsts();
             }
 
-            loggerFactory.AddLog4Net();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
