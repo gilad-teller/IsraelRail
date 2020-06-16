@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace IsraelRail
 {
@@ -31,7 +32,10 @@ namespace IsraelRail
 
             services.AddApplicationInsightsTelemetry();
             services.AddLogging();
-            services.AddHttpClient();
+            services.AddHttpClient("RailApi", options =>
+            {
+                options.BaseAddress = new Uri(Configuration.GetValue<string>("AppSettings:RailApiUri"));
+            });
             services.AddTransient<IRail, RailRepository>();
             services.AddTransient<IGoogle, GoogleApiRepositoryWithParking>();
             services.AddTransient<IRailRouteBuilder, RailRoutesBuilder>();
@@ -41,7 +45,7 @@ namespace IsraelRail
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
