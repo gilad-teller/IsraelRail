@@ -54,6 +54,7 @@ namespace IsraelRail.Models.ViewModels
         public string Equipment { get; set; }
         public Stop OrigintStop { get; set; }
         public Stop DestinationStop { get; set; }
+        public int AvailableSeats { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -66,7 +67,7 @@ namespace IsraelRail.Models.ViewModels
 
         public override int GetHashCode()
         {
-            return TrainNumber.GetHashCode();
+            return HashCode.Combine(TrainNumber);
         }
     }
 
@@ -83,7 +84,7 @@ namespace IsraelRail.Models.ViewModels
 
     public interface IRailRouteBuilder
     {
-        IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse);
+        IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse, IEnumerable<TrainAvailableChairsResponse> chairsResponses);
     }
 
     public class RailRoutesBuilder : IRailRouteBuilder
@@ -95,7 +96,7 @@ namespace IsraelRail.Models.ViewModels
             _staticStations = staticStations;
         }
 
-        public IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse)
+        public IEnumerable<Route> BuildRoutes(GetRoutesResponse routesResponse, IEnumerable<TrainAvailableChairsResponse> chairsResponses)
         {
             List<Route> routes = new List<Route>();
             int index = 0;
@@ -117,6 +118,7 @@ namespace IsraelRail.Models.ViewModels
                     E_Station currentStation = pos != null ? (E_Station)pos.CurrentStation : E_Station.None;
                     E_Station nextStation = pos != null ? (E_Station)pos.NextStation : E_Station.None;
                     Delay currentDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno);
+                    
                     Train train = new Train()
                     {
                         TrainNumber = trainNumber,
@@ -207,7 +209,7 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == s.StationNumber);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == s.StationNumber.ToString());
-                        string stopTimeStr = $"{train.OrigintStop.StopTime.FirstOrDefault().ToString("dd/MM/yyyy")} {s.Time}";
+                        string stopTimeStr = $"{train.OrigintStop.StopTime.FirstOrDefault():dd/MM/yyyy} {s.Time}";
                         DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopTime);
                         Stop stop = new Stop()
                         {
@@ -217,7 +219,7 @@ namespace IsraelRail.Models.ViewModels
                             {
                                 stopTime
                             },
-                            Congestion = s.OmesPercent,
+                            Congestion = s.OmesPercent >= 0 ? s.OmesPercent : (float?)null,
                             Delay = Tools.StopDelay(stopPos, stopDelay),
                             IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
                         };
@@ -229,7 +231,7 @@ namespace IsraelRail.Models.ViewModels
                     {
                         Trainposition stopPos = routesResponse.Data.TrainPositions.FirstOrDefault(x => x.TrainNumber == trainNumber && x.CurrentStation == s.StationNumber);
                         Delay stopDelay = routesResponse.Data.Delays.FirstOrDefault(x => x.Train == t.Trainno && x.Station == s.StationNumber.ToString());
-                        string stopTimeStr = $"{train.DestinationStop.StopTime.FirstOrDefault().ToString("dd/MM/yyyy")} {s.Time}";
+                        string stopTimeStr = $"{train.DestinationStop.StopTime.FirstOrDefault():dd/MM/yyyy} {s.Time}";
                         DateTime.TryParseExact(stopTimeStr, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None, out DateTime stopTime);
                         Stop stop = new Stop()
                         {
@@ -239,7 +241,7 @@ namespace IsraelRail.Models.ViewModels
                             {
                                 stopTime
                             },
-                            Congestion = s.OmesPercent,
+                            Congestion = s.OmesPercent >= 0 ? s.OmesPercent : (float?)null,
                             Delay = Tools.StopDelay(stopPos, stopDelay),
                             IsCurrent = (E_Station)s.StationNumber == currentStation && nextStation == E_Station.None
                         };
@@ -248,6 +250,19 @@ namespace IsraelRail.Models.ViewModels
                     train.Stops.AddRange(stopsUntilOrigin);
                     train.Stops.AddRange(midwayStops);
                     train.Stops.AddRange(stopsAfterDestination);
+
+                    if (chairsResponses != null && chairsResponses.Any(x => x.ListTrainAvailableChairs != null && x.ListTrainAvailableChairs.Length > 0))
+                    {
+                        TrainAvailableChairsResponse chairsResponse = chairsResponses.FirstOrDefault(x => x.ListTrainAvailableChairs.Any(y => y.TrainNumber == trainNumber && y.TrainDate.Date == departureTime.Date));
+                        if (chairsResponse != null)
+                        {
+                            TrainAvailableChairsResponseItem chairsResponseItem = chairsResponse.ListTrainAvailableChairs.FirstOrDefault(x => x.TrainNumber == trainNumber && x.TrainDate.Date == departureTime.Date);
+                            if (chairsResponseItem != null)
+                            {
+                                train.AvailableSeats = chairsResponseItem.SeatsAvailable;
+                            }
+                        }
+                    }
 
                     route.Trains.Add(train);
                 }

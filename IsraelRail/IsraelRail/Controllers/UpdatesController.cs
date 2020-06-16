@@ -14,14 +14,12 @@ namespace IsraelRail.Controllers
     public class UpdatesController : Controller
     {
         private readonly IRail _rail;
-        private readonly ILogger<UpdatesController> _logger;
         private readonly IStaticStations _staticStations;
 
-        public UpdatesController(IRail rail, IStaticStations staticStations, ILogger<UpdatesController> logger)
+        public UpdatesController(IRail rail, IStaticStations staticStations)
         {
             _rail = rail;
             _staticStations = staticStations;
-            _logger = logger;
         }
 
         public IActionResult Index()

@@ -18,22 +18,22 @@
                         i++;
                         <li class="list-group-item">
                             <p class="card-text">
-                                Train @t.TrainNumber
+                                <span class="badge badge-primary">Train @t.TrainNumber</span>
                                 @if (t.Accesability)
                                 {
-                                    <i class="fas fa-wheelchair"></i>
+                                    <span class="badge badge-dark"><i class="fas fa-wheelchair"></i></span>
                                 }
                                 @if (t.ReservedSeats)
                                 {
-                                    <i class="fas fa-couch"></i>
+                                    <span class="badge badge-dark"><i class="fas fa-couch"></i></span>
                                 }
                                 @if (t.Equipment != null)
                                 {
-                                    <span class="hand" data-toggle="modal" data-target="#modal-@t.Equipment"><i class="fas fa-train"></i>@t.Equipment</span>
+                                    <span class="hand badge badge-secondary" data-toggle="modal" data-target="#modal-@t.Equipment"><i class="fas fa-train"></i> @t.Equipment x @t.Carriages</span>
                                 }
-                                @if (t.Carriages > 0)
+                                @if (t.AvailableSeats > 0)
                                 {
-                                    <span>x</span>@t.Carriages
+                                    <span class="badge badge-info">@t.AvailableSeats Seats</span>
                                 }
                                 <partial name="_Delay" model="t.Delay" />
                             </p>
