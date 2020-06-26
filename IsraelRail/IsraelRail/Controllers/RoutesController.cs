@@ -52,7 +52,7 @@ namespace IsraelRail.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in Routes Search");
+                _logger.LogCritical(ex, $"Failed Routes({origin}, {destination}, {dateTime:yyyy-MM-ddTHH:mm}, {isDepart})");
                 return PartialView("Error", new ErrorViewModel()
                 {
                     Exception = ex
@@ -108,7 +108,7 @@ namespace IsraelRail.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in Advanced Search");
+                _logger.LogCritical(ex, $"Failed Advanced({origin}, {destination}, {dateTime:yyyy-MM-ddTHH:mm}, {isDepart})");
                 return PartialView("Error", new ErrorViewModel()
                 {
                     Exception = ex
@@ -119,10 +119,18 @@ namespace IsraelRail.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRoutes(int origin, int destination, DateTime dateTime, bool isDepart)
         {
-            GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isDepart);
-            IEnumerable<TrainAvailableChairsResponse> chairsResponses = await GetChairsResponses(getRoutesResponse);
-            IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse, chairsResponses);
-            return Json(routes);
+            try
+            {
+                GetRoutesResponse getRoutesResponse = await _rail.GetRoutes((E_Station)origin, (E_Station)destination, dateTime, isDepart);
+                IEnumerable<TrainAvailableChairsResponse> chairsResponses = await GetChairsResponses(getRoutesResponse);
+                IEnumerable<Models.ViewModels.Route> routes = _railRouteBuilder.BuildRoutes(getRoutesResponse, chairsResponses);
+                return Json(routes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed GetRoutes({origin}, {destination}, {dateTime:yyyy-MM-ddTHH:mm}, {isDepart})");
+                return StatusCode(500, ex);
+            }
         }
 
         private async Task<IEnumerable<TrainAvailableChairsResponse>> GetChairsResponses(GetRoutesResponse getRoutesResponse)

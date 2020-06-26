@@ -15,7 +15,7 @@ namespace IsraelRail.Repositories
 
     public class StaticStationsRepository : IStaticStations
     {
-        private List<StationLightData> _stations;
+        private readonly List<StationLightData> _stations;
         private readonly IRail _rail;
 
         public StaticStationsRepository(IRail rail)

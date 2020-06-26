@@ -40,27 +40,54 @@ namespace IsraelRail.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStationData(int id)
         {
-            E_Station station = (E_Station)id;
-            GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
-            StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew);
-            return Json(stationData);
+            try
+            {
+                E_Station station = (E_Station)id;
+                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
+                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew);
+                return Ok(stationData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed GetStationData({id})");
+                return StatusCode(500, ex);
+            }
         }
 
         public async Task<IActionResult> Station(int id)
         {
-            E_Station station = (E_Station)id;
-            GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
-            StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew); 
-            ViewBag.GoogleMapsUrl = _google.GetGoogleMapsUrl(stationData);
-            return PartialView("_Station", stationData);
+            try
+            {
+                E_Station station = (E_Station)id;
+                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
+                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew);
+                ViewBag.GoogleMapsUrl = _google.GetGoogleMapsUrl(stationData);
+                return PartialView("_Station", stationData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed Station({id})");
+                return PartialView("Error", new ErrorViewModel()
+                {
+                    Exception = ex
+                });
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetStationsDictionary()
         {
-            GetStationsInforResponse stationsInfo = await _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>());
-            Dictionary<int, string> res = stationsInfo.Data.ToDictionary(x => int.Parse(x.StationCode), y => y.Hebrew.StationName);
-            return Json(res);
+            try
+            {
+                GetStationsInforResponse stationsInfo = await _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>());
+                Dictionary<int, string> res = stationsInfo.Data.ToDictionary(x => int.Parse(x.StationCode), y => y.Hebrew.StationName);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed GetStationsDictionary()");
+                return StatusCode(500, ex);
+            }
         }
     }
 }
