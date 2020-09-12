@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using ApplicationInsightsTelemetryEnhancer22;
 using System;
 
 namespace IsraelRail
@@ -29,8 +29,8 @@ namespace IsraelRail
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
             services.AddApplicationInsightsTelemetry();
+            services.AddDependencyTelemetryEnhancer();
             services.AddLogging();
             services.AddHttpClient("RailApi", options =>
             {
@@ -57,6 +57,9 @@ namespace IsraelRail
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseRequestTelemetryEnhancer();
+            app.UseOperationIdHeader();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
