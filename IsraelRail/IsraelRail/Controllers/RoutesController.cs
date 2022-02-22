@@ -30,9 +30,20 @@ namespace IsraelRail.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.Now = _time.NowInLocal();
-            IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
-            return View(allStations);
+            try
+            {
+                ViewBag.Now = _time.NowInLocal();
+                IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
+                return View(allStations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed Routes main page");
+                return PartialView("Error", new ErrorViewModel()
+                {
+                    Exception = ex
+                });
+            }
         }
 
         public async Task<IActionResult> Routes(int origin, int destination, DateTime dateTime, bool isDepart)

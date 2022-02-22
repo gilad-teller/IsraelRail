@@ -33,8 +33,19 @@ namespace IsraelRail.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
-            return View(allStations);
+            try
+            {
+                IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
+                return View(allStations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"Failed Stations main page");
+                return PartialView("Error", new ErrorViewModel()
+                {
+                    Exception = ex
+                });
+            }
         }
 
         [HttpGet]
