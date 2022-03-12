@@ -152,7 +152,16 @@ namespace IsraelRail.Controllers
             {
                 tasks.Add(_rail.TrainAvailableChairs(chairsRequest));
             }
-            IEnumerable<TrainAvailableChairsResponse> chairsResponses = await Task.WhenAll(tasks);
+            IEnumerable<TrainAvailableChairsResponse> chairsResponses;
+            try
+            {
+                chairsResponses = await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                chairsResponses = tasks.Where(t => t.Status == TaskStatus.RanToCompletion).Select(t => t.Result).ToList();
+                _logger.LogError(ex, "GetChairsResponses failed");
+            }
             return chairsResponses;
         }
     }
