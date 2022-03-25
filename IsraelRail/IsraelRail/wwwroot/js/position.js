@@ -1,4 +1,4 @@
-﻿function SetPosition(position) {debugger
+﻿function SetPosition(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
     var min = 100;
