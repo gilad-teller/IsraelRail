@@ -31,11 +31,11 @@ namespace IsraelRail.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
+                IEnumerable<StationLightData> allStations = await _staticStations.GetAllStations();
                 return View(allStations);
             }
             catch (Exception ex)
@@ -49,13 +49,12 @@ namespace IsraelRail.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStationData(int id)
+        public async Task<IActionResult> GetStationData(string id)
         {
             try
             {
-                E_Station station = (E_Station)id;
-                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
-                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew);
+                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(id);
+                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id), E_Language.Hebrew);
                 return Ok(stationData);
             }
             catch (Exception ex)
@@ -65,13 +64,12 @@ namespace IsraelRail.Controllers
             }
         }
 
-        public async Task<IActionResult> Station(int id)
+        public async Task<IActionResult> Station(string id)
         {
             try
             {
-                E_Station station = (E_Station)id;
-                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(station);
-                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id.ToString()), E_Language.Hebrew);
+                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(id);
+                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id), E_Language.Hebrew);
                 ViewBag.GoogleMapsUrl = _google.GetGoogleMapsUrl(stationData);
                 return PartialView("_Station", stationData);
             }
@@ -90,8 +88,8 @@ namespace IsraelRail.Controllers
         {
             try
             {
-                GetStationsInforResponse stationsInfo = await _rail.GetStationsInfor(Enum.GetValues(typeof(E_Station)).Cast<E_Station>());
-                Dictionary<int, string> res = stationsInfo.Data.ToDictionary(x => int.Parse(x.StationCode), y => y.Hebrew.StationName);
+                IEnumerable<StationLightData> allStations = await _staticStations.GetAllStations();
+                Dictionary<string, string> res = allStations.ToDictionary(x => x.Id, y => y.Name);
                 return Ok(res);
             }
             catch (Exception ex)
