@@ -2,15 +2,15 @@
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
     var min = 100;
-    var minStation = 0;
+    var minStation = "0";
     for (const s of stationsData) {
         var dis = GetDistance(latitude, longitude, s);
         if (dis < min) {
             min = dis;
-            minStation = s.station;
+            minStation = s.id;
         }
     }
-    if (minStation != 0) {
+    if (minStation != "0") {
         $(".userStation").val(minStation);
     }
     GetStations();

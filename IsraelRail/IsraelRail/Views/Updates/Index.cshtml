@@ -18,7 +18,7 @@
             <select id="oId" class="custom-select userStation">
                 @foreach (StationLightData s in Model)
                 {
-                    <option value="@((int)s.Station)">@s.Name</option>
+                    <option value="@(s.Id)">@s.Name</option>
                 }
             </select>
         </div>
@@ -26,7 +26,7 @@
             <select id="dId" class="custom-select">
                 @foreach (StationLightData s in Model)
                 {
-                    <option value="@((int)s.Station)">@s.Name</option>
+                    <option value="@(s.Id)">@s.Name</option>
                 }
             </select>
         </div>

@@ -47,7 +47,7 @@
                                 @foreach (Stop s in t.Stops)
                                 {
                                     <partial name="_Stop" model="s" />
-                                    if (s.Station == t.CurrentStation && t.NextStation != E_Station.None)
+                                    if (s.Station == t.CurrentStation && t.NextStation != "0")
                                     {
                                         <div class="spinner-grow spinner-grow-sm" role="status">
                                             <span class="sr-only">█</span>

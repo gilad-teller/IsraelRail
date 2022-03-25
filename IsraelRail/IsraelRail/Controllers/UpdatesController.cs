@@ -24,20 +24,18 @@ namespace IsraelRail.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<StationLightData> allStations = _staticStations.GetAllStations();
+            IEnumerable<StationLightData> allStations = await _staticStations.GetAllStations();
             return View(allStations);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStationUpdates(int oId, int dId)
+        public async Task<IActionResult> GetStationUpdates(string oId, string dId)
         {
             try
             {
-                E_Station origin = (E_Station)oId;
-                E_Station destination = (E_Station)dId;
-                GetStationsInfoResponse updates = await _rail.GetStationsInfo(origin, destination);
+                GetStationsInfoResponse updates = await _rail.GetStationsInfo(oId, dId);
                 List<StationUpdate> stationUpdates = new List<StationUpdate>();
                 foreach (GetStationsInfoResponseData update in updates.Data.OrderBy(x => x.Order))
                 {
@@ -53,13 +51,11 @@ namespace IsraelRail.Controllers
             }
         }
 
-        public async Task<IActionResult> StationUpdates(int oId, int dId)
+        public async Task<IActionResult> StationUpdates(string oId, string dId)
         {
             try
             {
-                E_Station origin = (E_Station)oId;
-                E_Station destination = (E_Station)dId;
-                GetStationsInfoResponse updates = await _rail.GetStationsInfo(origin, destination);
+                GetStationsInfoResponse updates = await _rail.GetStationsInfo(oId, dId);
                 List<StationUpdate> stationUpdates = new List<StationUpdate>();
                 foreach (GetStationsInfoResponseData update in updates.Data.OrderBy(x => x.Order))
                 {

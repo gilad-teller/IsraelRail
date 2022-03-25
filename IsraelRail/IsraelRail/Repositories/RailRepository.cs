@@ -16,10 +16,11 @@ namespace IsraelRail.Repositories
 {
     public interface IRail
     {
-        Task<GetStationsInforResponse> GetStationsInfor(E_Station station);
-        Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<E_Station> stations);
-        Task<GetStationsInfoResponse> GetStationsInfo(E_Station origin, E_Station destination);
-        Task<GetRoutesResponse> GetRoutes(E_Station origin, E_Station destination, DateTime dateTime, bool isGoing);
+        Task<GetStationsInforResponse> GetStationsInfor(string stationId);
+        Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<string> stationIds);
+        Task<GetStationsInfoResponse> GetStationsInfo(string origin, string destination);
+        Task<GetRoutesResponse> GetRoutes(string origin, string destination, DateTime dateTime, bool isGoing);
+        Task<GetStationsSuggestionResponse> GetStationsSuggestion();
         Task<TrainAvailableChairsResponse> TrainAvailableChairs(TrainAvailableChairsRequest request);
         IEnumerable<TrainAvailableChairsRequest> TrainAvailableChairsRequestBuilder(GetRoutesResponse routesResponse);
     }
@@ -33,10 +34,10 @@ namespace IsraelRail.Repositories
             _clientFactory = clientFactory;
         }
 
-        public async Task<GetStationsInforResponse> GetStationsInfor(E_Station station)
+        public async Task<GetStationsInforResponse> GetStationsInfor(string stationId)
         {
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["stations"] = ((int)station).ToString();
+            parameters["stations"] = stationId;
             UriBuilder ub = new UriBuilder()
             {
                 Path = "apiinfo/api/infor/GetStationsInfor",
@@ -52,9 +53,9 @@ namespace IsraelRail.Repositories
             }
         }
 
-        public async Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<E_Station> stations)
+        public async Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<string> stations)
         {
-            string parameters = string.Join('&', stations.Select(x => $"stations={(int)x}"));
+            string parameters = string.Join('&', stations.Select(x => $"stations={x}"));
             UriBuilder ub = new UriBuilder()
             {
                 Path = "apiinfo/api/infor/GetStationsInfor",
@@ -70,11 +71,11 @@ namespace IsraelRail.Repositories
             }
         }
 
-        public async Task<GetStationsInfoResponse> GetStationsInfo(E_Station origin, E_Station destination)
+        public async Task<GetStationsInfoResponse> GetStationsInfo(string origin, string destination)
         {
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["OId"] = ((int)origin).ToString();
-            parameters["TId"] = ((int)destination).ToString();
+            parameters["OId"] = origin;
+            parameters["TId"] = destination;
             UriBuilder ub = new UriBuilder()
             {
                 Path = "apiinfo/api/Info/GetStationsInfo",
@@ -90,11 +91,11 @@ namespace IsraelRail.Repositories
             }
         }
 
-        public async Task<GetRoutesResponse> GetRoutes(E_Station origin, E_Station destination, DateTime dateTime, bool isGoing)
+        public async Task<GetRoutesResponse> GetRoutes(string origin, string destination, DateTime dateTime, bool isGoing)
         {
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["OId"] = ((int)origin).ToString();
-            parameters["TId"] = ((int)destination).ToString();
+            parameters["OId"] = origin;
+            parameters["TId"] = destination;
             parameters["Date"] = dateTime.ToString("yyyyMMdd");
             parameters["Hour"] = dateTime.ToString("HHmm");
             parameters["isGoing"] = isGoing.ToString();
@@ -114,6 +115,18 @@ namespace IsraelRail.Repositories
                 {
                     throw new Exception(result.Data.Error.Description);
                 }
+                return result;
+            }
+        }
+
+        public async Task<GetStationsSuggestionResponse> GetStationsSuggestion()
+        {
+            string uri = "apiinfo/api/plan/GetStationsSuggestion";
+            HttpClient client = _clientFactory.CreateClient("RailApi");
+            using (HttpResponseMessage response = await client.GetAsync(uri))
+            {
+                response.EnsureSuccessStatusCode();
+                GetStationsSuggestionResponse result = await response.Content.ReadAsAsync<GetStationsSuggestionResponse>();
                 return result;
             }
         }
