@@ -83,6 +83,6 @@ function SwitchStations() {
 function SetStations() {
     var oId = $("#oId option:selected").val();
     var dId = $("#dId option:selected").val();
-    Cookies.set('oId', oId);
-    Cookies.set('dId', dId);
+    localStorage.setItem('oId', oId);
+    localStorage.setItem('dId', dId);
 }
