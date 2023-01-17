@@ -19,6 +19,8 @@
 function FailedPosition(err) {
     console.error('Failed to get user position');
     console.error(err);
+    $("#failedPos").show();
+    setTimeout(() => { $("#failedPos").hide(); }, 5000);
     GetStations();
 }
 
@@ -31,11 +33,11 @@ function GetDistance(lat, lon, station) {
 }
 
 function GetStations() {
-    var oId = Cookies.get('oId');
-    var dId = Cookies.get('dId');
+    var oId = localStorage.getItem('oId');
+    var dId = localStorage.getItem('dId');
     var oIdElement = $("#oId");
     var dIdElement = $("#dId");
-    if (oId != undefined && dId != undefined) {
+    if (oId && dId) {
         if (oId == oIdElement.val()) {
             dIdElement.val(dId);
         }
