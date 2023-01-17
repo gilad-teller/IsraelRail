@@ -26,7 +26,7 @@ jobs:
         run: dotnet build IsraelRail/IsraelRail.sln --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish IsraelRail/IsraelRail/IsraelRail -c Release -o ${{env.DOTNET_ROOT}}/IsraelRail
+        run: dotnet publish IsraelRail/IsraelRail/IsraelRail.csproj -c Release -o ${{env.DOTNET_ROOT}}/IsraelRail
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
