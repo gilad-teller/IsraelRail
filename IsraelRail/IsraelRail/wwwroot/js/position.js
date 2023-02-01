@@ -44,5 +44,8 @@ function GetStations() {
         else {
             dIdElement.val(oId);
         }
+    } else {
+        $("#failedLoad").show();
+        setTimeout(() => { $("#failedLoad").hide(); }, 5000);
     }
 }

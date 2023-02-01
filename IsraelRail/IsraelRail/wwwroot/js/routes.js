@@ -81,8 +81,14 @@ function SwitchStations() {
 }
 
 function SetStations() {
-    var oId = $("#oId option:selected").val();
-    var dId = $("#dId option:selected").val();
-    localStorage.setItem('oId', oId);
-    localStorage.setItem('dId', dId);
+    try {
+        var oId = $("#oId option:selected").val();
+        var dId = $("#dId option:selected").val();
+        localStorage.setItem('oId', oId);
+        localStorage.setItem('dId', dId);
+        $("#savedFavs").show();
+        setTimeout(() => { $("#savedFavs").hide(); }, 5000);
+    } catch (e) {
+        console.log(e);
+    }
 }
