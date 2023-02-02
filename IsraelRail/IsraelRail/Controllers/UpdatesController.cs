@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IsraelRail.Controllers
 {
-    public class UpdatesController : Controller
+    public class UpdatesController : BaseController
     {
         private readonly IRail _rail;
         private readonly IStaticStations _staticStations;

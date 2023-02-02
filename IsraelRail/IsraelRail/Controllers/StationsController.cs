@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using IsraelRail.Models;
 using IsraelRail.Models.ApiModels;
 using IsraelRail.Models.ViewModels;
 using IsraelRail.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace IsraelRail.Controllers
 {
-    public class StationsController : Controller
+    public class StationsController : BaseController
     {
         private readonly IRail _rail;
         private readonly IGoogle _google;

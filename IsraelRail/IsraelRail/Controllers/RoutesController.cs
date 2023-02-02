@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IsraelRail.Controllers
 {
-    public class RoutesController : Controller
+    public class RoutesController : BaseController
     {
         private readonly IRail _rail;
         private readonly IRailRouteBuilder _railRouteBuilder;
