@@ -33,18 +33,24 @@ function GetDistance(lat, lon, station) {
 }
 
 function GetStations() {
-    var oId = localStorage.getItem('oId');
-    var dId = localStorage.getItem('dId');
-    var oIdElement = $("#oId");
-    var dIdElement = $("#dId");
-    if (oId && dId) {
-        if (oId == oIdElement.val()) {
-            dIdElement.val(dId);
+    try {
+        var oId = localStorage.getItem('oId');
+        var dId = localStorage.getItem('dId');
+        var oIdElement = $("#oId");
+        var dIdElement = $("#dId");
+        if (oId && dId) {
+            if (oId == oIdElement.val()) {
+                dIdElement.val(dId);
+            }
+            else {
+                dIdElement.val(oId);
+            }
+        } else {
+            $("#failedLoad").show();
+            setTimeout(() => { $("#failedLoad").hide(); }, 5000);
         }
-        else {
-            dIdElement.val(oId);
-        }
-    } else {
+    } catch (e) {
+        console.log(e);
         $("#failedLoad").show();
         setTimeout(() => { $("#failedLoad").hide(); }, 5000);
     }
