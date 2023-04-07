@@ -1,6 +1,4 @@
-﻿using IsraelRail.Models;
-using IsraelRail.Models.ApiModels;
-using Microsoft.Extensions.Configuration;
+﻿using IsraelRail.Models.ApiModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +6,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -16,13 +14,9 @@ namespace IsraelRail.Repositories
 {
     public interface IRail
     {
-        Task<GetStationsInforResponse> GetStationsInfor(string stationId);
-        Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<string> stationIds);
-        Task<GetStationsInfoResponse> GetStationsInfo(string origin, string destination);
-        Task<GetRoutesResponse> GetRoutes(string origin, string destination, DateTime dateTime, bool isGoing);
-        Task<GetStationsSuggestionResponse> GetStationsSuggestion();
-        Task<TrainAvailableChairsResponse> TrainAvailableChairs(TrainAvailableChairsRequest request);
-        IEnumerable<TrainAvailableChairsRequest> TrainAvailableChairsRequestBuilder(GetRoutesResponse routesResponse);
+        Task<StationInformationResponse> GetStationInformation(int stationId);
+        Task<TimetableResponse> Timetable(int fromStation, int toStation, DateTime dateTime, ScheduleType scheduleType);
+        Task<StationsResponse> Stations();
     }
 
     public class RailRepository : IRail
@@ -34,13 +28,15 @@ namespace IsraelRail.Repositories
             _clientFactory = clientFactory;
         }
 
-        public async Task<GetStationsInforResponse> GetStationsInfor(string stationId)
+        public async Task<StationInformationResponse> GetStationInformation(int stationId)
         {
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["stations"] = stationId;
+            parameters["stationId"] = stationId.ToString();
+            parameters["systemType"] = "2";
+            parameters["languageId"] = "Hebrew";
             UriBuilder ub = new UriBuilder()
             {
-                Path = "apiinfo/api/infor/GetStationsInfor",
+                Path = "common/api/v1/Stations/GetStationInformation",
                 Query = HttpUtility.UrlDecode(parameters.ToString())
             };
             string uri = ub.Uri.PathAndQuery;
@@ -48,145 +44,66 @@ namespace IsraelRail.Repositories
             using (HttpResponseMessage response = await client.GetAsync(uri))
             {
                 response.EnsureSuccessStatusCode();
-                GetStationsInforResponse result = await response.Content.ReadAsAsync<GetStationsInforResponse>();
-                return result;
-            }
-        }
-
-        public async Task<GetStationsInforResponse> GetStationsInfor(IEnumerable<string> stations)
-        {
-            string parameters = string.Join('&', stations.Select(x => $"stations={x}"));
-            UriBuilder ub = new UriBuilder()
-            {
-                Path = "apiinfo/api/infor/GetStationsInfor",
-                Query = parameters
-            };
-            string uri = ub.Uri.PathAndQuery;
-            HttpClient client = _clientFactory.CreateClient("RailApi");
-            using (HttpResponseMessage response = await client.GetAsync(uri))
-            {
-                response.EnsureSuccessStatusCode();
-                GetStationsInforResponse result = await response.Content.ReadAsAsync<GetStationsInforResponse>();
-                return result;
-            }
-        }
-
-        public async Task<GetStationsInfoResponse> GetStationsInfo(string origin, string destination)
-        {
-            NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["OId"] = origin;
-            parameters["TId"] = destination;
-            UriBuilder ub = new UriBuilder()
-            {
-                Path = "apiinfo/api/Info/GetStationsInfo",
-                Query = HttpUtility.UrlDecode(parameters.ToString())
-            };
-            string uri = ub.Uri.PathAndQuery;
-            HttpClient client = _clientFactory.CreateClient("RailApi");
-            using (HttpResponseMessage response = await client.GetAsync(uri))
-            {
-                response.EnsureSuccessStatusCode();
-                GetStationsInfoResponse result = await response.Content.ReadAsAsync<GetStationsInfoResponse>();
-                return result;
-            }
-        }
-
-        public async Task<GetRoutesResponse> GetRoutes(string origin, string destination, DateTime dateTime, bool isGoing)
-        {
-            NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["OId"] = origin;
-            parameters["TId"] = destination;
-            parameters["Date"] = dateTime.ToString("yyyyMMdd");
-            parameters["Hour"] = dateTime.ToString("HHmm");
-            parameters["isGoing"] = isGoing.ToString();
-            parameters["c"] = "1574944324761";
-            UriBuilder ub = new UriBuilder()
-            {
-                Path = "apiinfo/api/Plan/GetRoutes",
-                Query = HttpUtility.UrlDecode(parameters.ToString())
-            };
-            string uri = ub.Uri.PathAndQuery;
-            HttpClient client = _clientFactory.CreateClient("RailApi");
-            using (HttpResponseMessage response = await client.GetAsync(uri))
-            {
-                response.EnsureSuccessStatusCode();
-                GetRoutesResponse result = await response.Content.ReadAsAsync<GetRoutesResponse>();
-                if (result.Data.Error != null)
+                StationInformationResponse result = await response.Content.ReadAsAsync<StationInformationResponse>();
+                if (result.ErrorMessages != null && result.ErrorMessages.Any())
                 {
-                    throw new Exception(result.Data.Error.Description);
+                    throw new Exception(string.Join(", ", result.ErrorMessages));
                 }
                 return result;
             }
         }
 
-        public async Task<GetStationsSuggestionResponse> GetStationsSuggestion()
+        public async Task<TimetableResponse> Timetable(int fromStation, int toStation, DateTime dateTime, ScheduleType scheduleType)
         {
-            string uri = "apiinfo/api/plan/GetStationsSuggestion";
-            HttpClient client = _clientFactory.CreateClient("RailApi");
-            using (HttpResponseMessage response = await client.GetAsync(uri))
-            {
-                response.EnsureSuccessStatusCode();
-                GetStationsSuggestionResponse result = await response.Content.ReadAsAsync<GetStationsSuggestionResponse>();
-                return result;
-            }
-        }
-
-        public async Task<TrainAvailableChairsResponse> TrainAvailableChairs(TrainAvailableChairsRequest request)
-        {
-            string json = JsonConvert.SerializeObject(request);
-            string encodedJson = json.Replace("\"", "%22");
             NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["method"] = "TrainAvailableChairs";
-            parameters["jsonObj"] = encodedJson;
+            parameters["fromStation"] = fromStation.ToString();
+            parameters["toStation"] = toStation.ToString();
+            parameters["date"] = dateTime.ToString("yyyy-MM-dd");
+            parameters["hour"] = dateTime.ToString("HH:mm");
+            parameters["scheduleType"] = ((int)scheduleType).ToString();
+            parameters["systemType"] = "2";
+            parameters["languageId"] = "Hebrew";
             UriBuilder ub = new UriBuilder()
             {
-                Path = "_layouts/15/SolBox/TrainAvailableChairsHandler.ashx",
+                Path = "rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime",
                 Query = HttpUtility.UrlDecode(parameters.ToString())
             };
             string uri = ub.Uri.PathAndQuery;
             HttpClient client = _clientFactory.CreateClient("RailApi");
-            using (HttpResponseMessage response = await client.PostAsync(uri, null))
+            using (HttpResponseMessage response = await client.GetAsync(uri))
             {
                 response.EnsureSuccessStatusCode();
-                TrainAvailableChairsResponse result = await response.Content.ReadAsAsync<TrainAvailableChairsResponse>();
-                if (result.clsResult.returnCode != 1)
+                TimetableResponse result = await response.Content.ReadAsAsync<TimetableResponse>();
+                if (result.ErrorMessages != null && result.ErrorMessages.Any())
                 {
-                    throw new Exception(result.clsResult.returnDescription);
+                    throw new Exception(string.Join(", ", result.ErrorMessages));
                 }
                 return result;
             }
         }
 
-        public IEnumerable<TrainAvailableChairsRequest> TrainAvailableChairsRequestBuilder(GetRoutesResponse routesResponse)
+        public async Task<StationsResponse> Stations()
         {
-            List<TrainAvailableChairsRequestItem> requestItems = new List<TrainAvailableChairsRequestItem>();
-            foreach (Route route in routesResponse.Data.Routes)
+            NameValueCollection parameters = HttpUtility.ParseQueryString(string.Empty);
+            parameters["systemType"] = "2";
+            parameters["languageId"] = "Hebrew";
+            UriBuilder ub = new UriBuilder()
             {
-                foreach (Train train in route.Train)
+                Path = "common/api/v1/stations",
+                Query = HttpUtility.UrlDecode(parameters.ToString())
+            };
+            string uri = ub.Uri.PathAndQuery;
+            HttpClient client = _clientFactory.CreateClient("RailApi");
+            using (HttpResponseMessage response = await client.GetAsync(uri))
+            {
+                response.EnsureSuccessStatusCode();
+                StationsResponse result = await response.Content.ReadAsAsync<StationsResponse>();
+                if (result.ErrorMessages != null && result.ErrorMessages.Any())
                 {
-                    if (int.TryParse(train.Trainno, out int trainNumber) && DateTime.TryParseExact(train.DepartureTime, "dd/MM/yyyy HH:mm:ss", null, DateTimeStyles.None, out DateTime departureTime) && int.TryParse(train.OrignStation, out int originStation) && int.TryParse(train.DestinationStation, out int destinationStation))
-                    {
-                        TrainAvailableChairsRequestItem requestItem = new TrainAvailableChairsRequestItem()
-                        {
-                            trainNumber = trainNumber,
-                            trainDate = departureTime.Date,
-                            fromStation = originStation,
-                            destStation = destinationStation
-                        };
-                        requestItems.Add(requestItem);
-                    }
+                    throw new Exception(string.Join(", ", result.ErrorMessages));
                 }
+                return result;
             }
-            List<TrainAvailableChairsRequest> requests = new List<TrainAvailableChairsRequest>();
-            for (int i = 0; i < requestItems.Count; i+= 17)
-            {
-                TrainAvailableChairsRequest request = new TrainAvailableChairsRequest()
-                {
-                    lstTrainAvailableChairsQuery = requestItems.GetRange(i, Math.Min(17, requestItems.Count - i)).ToArray()
-                };
-                requests.Add(request);
-            }
-            return requests;
         }
     }
 }

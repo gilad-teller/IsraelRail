@@ -1,44 +1,21 @@
-﻿using IsraelRail.Models.ApiModels;
+﻿using IsraelRail.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace IsraelRail
 {
-    public class Tools
+    public static class Tools
     {
-        public static TimeSpan? StopDelay(Trainposition pos, Delay delay)
+        public static DayOfWeek ParseToDayOfWeek(this string day)
         {
-            return DelayFromPosition(pos) ?? DelayFromDelay(delay) ?? null;
+            int dayInt = int.Parse(day) - 1;
+            return (DayOfWeek)dayInt;
         }
 
-        public static TimeSpan? DelayFromPosition(Trainposition pos)
+        public static Route SelectRoute(IEnumerable<Route> routes, DateTime dateTime, bool isDepart)
         {
-            if (pos == null)
-            {
-                return null;
-            }
-            int minutes = pos.DifMin * (pos.DifType == "AHEAD" ? -1 : 1);
-            return TimeSpan.FromMinutes(minutes);
-        }
-
-        private static TimeSpan? DelayFromDelay(Delay delay)
-        {
-            TimeSpan? ts = null;
-            if (delay != null)
-            {
-                if (TimeSpan.TryParseExact(delay.Min, "mmmm", null, out TimeSpan temp))
-                {
-                    ts = temp;
-                }
-            }
-            return ts;
-        }
-
-        public static Models.ViewModels.Route SelectRoute(IEnumerable<Models.ViewModels.Route> routes, DateTime dateTime, bool isDepart)
-        {
-            Models.ViewModels.Route selectedRoute = null;
+            Route selectedRoute = null;
             if (isDepart)
             {
                 selectedRoute = routes.FirstOrDefault(x => x.Trains.FirstOrDefault().OrigintStop.StopTime.FirstOrDefault() >= dateTime) ?? routes.LastOrDefault();

@@ -11,7 +11,8 @@ namespace IsraelRail.Repositories
 {
     public interface IStaticStations
     {
-        Task<string> GetStation(string station);
+        Task<string> GetStationName(int station);
+        Task<StationLightData> GetStation(int station);
         Task<IEnumerable<StationLightData>> GetAllStations();
     }
 
@@ -31,19 +32,17 @@ namespace IsraelRail.Repositories
         {
             try
             {
-                GetStationsSuggestionResponse stationsSuggestions = await _rail.GetStationsSuggestion();
-                IEnumerable<string> stationIds = stationsSuggestions.Data.CustomPropertys.Select(x => x.Id);
-                GetStationsInforResponse stationsInfo = await _rail.GetStationsInfor(stationIds);
-                IEnumerable<GetStationsInforResponseData> stations = stationsInfo.Data.OrderBy(x => x.Hebrew.StationName);
+                StationsResponse stationsResponse = await _rail.Stations();
+                IEnumerable<StationsResult> stations = stationsResponse.Result.OrderBy(x => x.StationName);
                 _stations = new List<StationLightData>();
-                foreach (GetStationsInforResponseData s in stations)
+                foreach (StationsResult s in stations)
                 {
                     StationLightData lightData = new StationLightData()
                     {
-                        Id = s.StationCode,
-                        Name = s.Hebrew.StationName,
-                        Latitude = s.General.Lat,
-                        Longitude = s.General.Long
+                        Id = s.StationId,
+                        Name = s.StationName,
+                        Latitude = s.Location.Latitude,
+                        Longitude = s.Location.Lontitude
                     };
                     _stations.Add(lightData);
                 }
@@ -55,7 +54,7 @@ namespace IsraelRail.Repositories
             }
         }
 
-        public async Task<string> GetStation(string station)
+        public async Task<string> GetStationName(int station)
         {
             if (_stations == null || !_stations.Any())
             {
@@ -65,6 +64,20 @@ namespace IsraelRail.Repositories
             if (lightData != null)
             {
                 return lightData.Name;
+            }
+            return null;
+        }
+
+        public async Task<StationLightData> GetStation(int station)
+        {
+            if (_stations == null || !_stations.Any())
+            {
+                await Initialize();
+            }
+            StationLightData lightData = _stations.FirstOrDefault(x => x.Id == station);
+            if (lightData != null)
+            {
+                return lightData;
             }
             return null;
         }

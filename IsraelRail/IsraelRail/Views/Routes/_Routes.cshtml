@@ -23,14 +23,6 @@
                                 {
                                     <span class="badge badge-dark"><i class="fas fa-wheelchair"></i></span>
                                 }
-                                @if (t.ReservedSeats)
-                                {
-                                    <span class="badge badge-dark"><i class="fas fa-couch"></i></span>
-                                }
-                                @if (t.Equipment != null)
-                                {
-                                    <span class="hand badge badge-secondary" data-toggle="modal" data-target="#modal-@t.Equipment"><i class="fas fa-train"></i> @t.Equipment x @t.Carriages</span>
-                                }
                                 @if (t.AvailableSeats > 0)
                                 {
                                     <span class="badge badge-info">@t.AvailableSeats Seats</span>
@@ -47,7 +39,7 @@
                                 @foreach (Stop s in t.Stops)
                                 {
                                     <partial name="_Stop" model="s" />
-                                    if (s.Station == t.CurrentStation && t.NextStation != "0")
+                                    if (s.Station == t.CurrentStation && t.NextStation != 0)
                                     {
                                         <div class="spinner-grow spinner-grow-sm" role="status">
                                             <span class="sr-only">█</span>
