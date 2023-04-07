@@ -37,7 +37,7 @@ namespace IsraelRail.Models.ViewModels
             GateId = gateInfo.StationGateId;
             Name = gateInfo.GateName;
             Longitude = gateInfo.GateLontitude;
-            Latitude = gateInfo.GateLontitude;
+            Latitude = gateInfo.GateLatitude;
             ActivityHours = gateInfo.GateActivityHours.Select(x => new ActivityHours(x));
             Services = gateInfo.GateServices.Select(x => x.ServiceName);
         }
