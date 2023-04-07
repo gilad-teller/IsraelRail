@@ -39,11 +39,11 @@ namespace IsraelRail.Repositories
         }
     }
 
-    public class GoogleApiRepositoryWithParking : IGoogle
+    public class GoogleApiRepositoryWithGates : IGoogle
     {
         private readonly IConfiguration _config;
 
-        public GoogleApiRepositoryWithParking(IConfiguration config)
+        public GoogleApiRepositoryWithGates(IConfiguration config)
         {
             _config = config;
         }
@@ -53,12 +53,12 @@ namespace IsraelRail.Repositories
             StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?");
             sb.Append("size=540x320");
             sb.AppendFormat("&markers=color:red%7Clabel:R%7C{0},{1}", stationData.Latitude, stationData.Longitude);
-            if (stationData.Parking != null && stationData.Parking.Any())
+            if (stationData.Gates != null && stationData.Gates.Any())
             {
-                sb.Append("&markers=color:blue%7Clabel:P");
-                foreach (StationParking sp in stationData.Parking)
+                sb.Append("&markers=color:blue%7Clabel:G");
+                foreach (Gate g in stationData.Gates)
                 {
-                    sb.AppendFormat("%7C{0},{1}", sp.Longitude, sp.Latitude);
+                    sb.AppendFormat("%7C{0},{1}", g.Longitude, g.Latitude);
                 }
             }
             sb.AppendFormat("&key={0}", _config.GetValue<string>("AppSettings:GoogleApiKey"));

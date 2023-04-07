@@ -3,73 +3,37 @@
 
 <div>
     <hr />
-    <h4>
+    <h3>
         @Model.Name
-        <small class="text-muted">Station Code: @Model.StationCode | Area: @Model.Area</small>
-    </h4>
+        <small class="text-muted">Station Id: @Model.StationId</small>
+    </h3>
     <div class="row">
         <div class="col-sm-6">
-            @if (Model.OpeningHours != null && Model.OpeningHours.Any())
+            @if (Model.Gates != null && Model.Gates.Any())
             {
-                <h5>Opening Hours</h5>
-                <dl class="row">
-                    @foreach (OpeningHours oh in Model.OpeningHours)
-                    {
-                        <dt class="col-sm-3">Weekday</dt>
-                        <dd class="col-sm-9">@oh.Weekday</dd>
-                        <dt class="col-sm-3">Friday</dt>
-                        <dd class="col-sm-9">@oh.Friday</dd>
-                        <dt class="col-sm-3">Saturday</dt>
-                        <dd class="col-sm-9">@oh.Saturday</dd>
-                    }
-                </dl>
-            }
-            @if (Model.Cashiers != null && Model.Cashiers.Any())
-            {
-                <h5>Cashiers</h5>
-                <dl class="row">
-                    @foreach (Cashier c in Model.Cashiers)
-                    {
-                        <dt class="col-sm-3">@c.Name</dt>
-                        <dd class="col-sm-9"></dd>
-                        <dt class="col-sm-3">Sunday</dt>
-                        <dd class="col-sm-9">@c.Sunday</dd>
-                        <dt class="col-sm-3">Weekday</dt>
-                        <dd class="col-sm-9">@c.Weekday</dd>
-                        <dt class="col-sm-3">Thursday</dt>
-                        <dd class="col-sm-9">@c.Thursday</dd>
-                        <dt class="col-sm-3">Friday</dt>
-                        <dd class="col-sm-9">@c.Friday</dd>
-                        <dt class="col-sm-3">Saturday</dt>
-                        <dd class="col-sm-9">@c.Saturday</dd>
-                    }
-                </dl>
+                @foreach (Gate g in Model.Gates)
+                {
+                    <h4>@g.Name</h4>
+                    <h6>Activity Hours</h6>
+                    <dl class="row">
+                        @foreach (ActivityHours ah in g.ActivityHours)
+                        {
+                            <dt class="col-sm-3">@string.Join(", ", ah.DaysOfWeek)</dt>
+                            <dd class="col-sm-9">@ah.StartHour - @ah.EndHour</dd>
+                        }
+                    </dl>
+                    <h6>Services</h6>
+                    <dl class="row">
+                        @foreach (string s in g.Services)
+                        {
+                            <dt class="col-sm-12">@s</dt>
+                        }
+                    </dl>
+                }
             }
         </div>
         <div class="col-sm-6">
             <img src="@ViewBag.GoogleMapsUrl" class="img-fluid" />
-            @if (Model.Parking != null && Model.Parking.Any())
-            {
-                <h5>Parking</h5>
-                <dl class="row">
-                    @foreach (StationParking p in Model.Parking)
-                    {
-                        <dt class="col-sm-4">@p.Name</dt>
-                        <dd class="col-sm-8">@p.Address (@p.Distance)</dd>
-                    }
-                </dl>
-            }
-            @if (Model.Facilities != null && Model.Facilities.Any())
-            {
-                <h5>Facilities</h5>
-                <dl class="row">
-                    @foreach (StationFacility f in Model.Facilities)
-                    {
-                        <dt class="col-sm-4">@f.Name</dt>
-                        <dd class="col-sm-8">@f.Description</dd>
-                    }
-                </dl>
-            }
         </div>
     </div>
 </div>

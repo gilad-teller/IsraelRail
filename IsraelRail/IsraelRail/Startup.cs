@@ -35,9 +35,10 @@ namespace IsraelRail
             services.AddHttpClient("RailApi", options =>
             {
                 options.BaseAddress = new Uri(Configuration.GetValue<string>("AppSettings:RailApiUri"));
+                options.DefaultRequestHeaders.Add("ocp-apim-subscription-key", Configuration.GetValue<string>("AppSettings:RailSubscriptionKey"));
             });
             services.AddTransient<IRail, RailRepository>();
-            services.AddTransient<IGoogle, GoogleApiRepositoryWithParking>();
+            services.AddTransient<IGoogle, GoogleApiRepositoryWithGates>();
             services.AddTransient<IRailRouteBuilder, RailRoutesBuilder>();
             services.AddSingleton<IStaticStations, StaticStationsRepository>();
             services.AddSingleton<ITime, TimeRepository>();

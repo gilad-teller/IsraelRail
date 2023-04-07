@@ -46,19 +46,17 @@ namespace IsraelRail.Controllers
             }
         }
 
-        public async Task<IActionResult> Routes(string origin, string destination, DateTime dateTime, bool isDepart)
+        public async Task<IActionResult> Routes(int origin, int destination, DateTime dateTime, bool isDepart)
         {
             try
             {
-                GetRoutesResponse getRoutesResponse = await _rail.GetRoutes(origin, destination, dateTime, isDepart);
-                IEnumerable<TrainAvailableChairsResponse> chairsResponses = await GetChairsResponses(getRoutesResponse);
-                IEnumerable<Models.ViewModels.Route> routes = await _railRouteBuilder.BuildRoutes(getRoutesResponse, chairsResponses);
+                TimetableResponse timetableResponse = await _rail.Timetable(origin, destination, dateTime, isDepart ? ScheduleType.OriginTime : ScheduleType.DestinationTime);
+                IEnumerable<Route> routes = await _railRouteBuilder.BuildRoutes(timetableResponse.Result);
                 if (routes == null || !routes.Any())
                 {
                     return PartialView("_NoRoutes");
                 }
-                Models.ViewModels.Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
-                ViewBag.ToShow = routeToShow != null ? routeToShow.Index : 0;
+                ViewBag.ToShow = timetableResponse.Result.StartFromIndex;
                 return PartialView("_Routes", routes);
             }
             catch (Exception ex)
@@ -71,23 +69,22 @@ namespace IsraelRail.Controllers
             }
         }
 
-        public async Task<IActionResult> Advanced(string origin, string destination, DateTime dateTime, bool isDepart)
+        public async Task<IActionResult> Advanced(int origin, int destination, DateTime dateTime, bool isDepart)
         {
             try
             {
                 DateTime nextWeek = dateTime.AddDays(7);
-                GetRoutesResponse getNextWeekRoutesResponse = await _rail.GetRoutes(origin, destination, nextWeek, isDepart);
-                IEnumerable<TrainAvailableChairsResponse> nextWeekChairsResponses = await GetChairsResponses(getNextWeekRoutesResponse);
-                IEnumerable<Models.ViewModels.Route> nextWeekRoutes = await _railRouteBuilder.BuildRoutes(getNextWeekRoutesResponse, nextWeekChairsResponses);
+                TimetableResponse nextWeekTimetableResponse = await _rail.Timetable(origin, destination, dateTime, isDepart ? ScheduleType.OriginTime : ScheduleType.DestinationTime);
+                IEnumerable<Route> nextWeekRoutes = await _railRouteBuilder.BuildRoutes(nextWeekTimetableResponse.Result);
                 if (nextWeekRoutes == null || !nextWeekRoutes.Any())
                 {
                     return PartialView("_NoRoutes");
                 }
-                Models.ViewModels.Route selectedRoute = Tools.SelectRoute(nextWeekRoutes, nextWeek, isDepart);
+                Route selectedRoute = Tools.SelectRoute(nextWeekRoutes, nextWeek, isDepart);
                 DateTime nowNextWeek = _time.NowInLocal().AddDays(7);
                 Models.ViewModels.Train selectedTrain = selectedRoute.Trains.FirstOrDefault(x => x.DestinationStop.StopTime.FirstOrDefault() >= nowNextWeek);
                 Stop selectedStop = selectedTrain.Stops.FirstOrDefault(x => x.StopTime.FirstOrDefault() >= nowNextWeek);
-                string currentOrigin = selectedStop.Station;
+                int currentOrigin = selectedStop.Station;
                 if (currentOrigin == destination)
                 {
                     int selectedIndex = selectedTrain.Stops.IndexOf(selectedStop);
@@ -95,16 +92,15 @@ namespace IsraelRail.Controllers
                     currentOrigin = selectedStop.Station;
                 }
 
-                GetRoutesResponse getRoutesResponse = await _rail.GetRoutes(currentOrigin, destination, dateTime, isDepart);
-                IEnumerable<TrainAvailableChairsResponse> chairsResponses = await GetChairsResponses(getRoutesResponse);
-                IEnumerable<Models.ViewModels.Route> routes = await _railRouteBuilder.BuildRoutes(getRoutesResponse, chairsResponses);
+                TimetableResponse timetableResponse = await _rail.Timetable(origin, destination, dateTime, isDepart ? ScheduleType.OriginTime : ScheduleType.DestinationTime);
+                IEnumerable<Route> routes = await _railRouteBuilder.BuildRoutes(timetableResponse.Result);
                 routes = routes.Where(x => nextWeekRoutes.Contains(x));
                 if (routes == null || !routes.Any())
                 {
                     return PartialView("_NoRoutes");
                 }
 
-                foreach (Models.ViewModels.Route route in routes)
+                foreach (Route route in routes)
                 {
                     Stop ori = route.Trains.FirstOrDefault().Stops.FirstOrDefault(x => x.Station == origin);
                     if (ori != null)
@@ -113,7 +109,7 @@ namespace IsraelRail.Controllers
                     }
                 }
 
-                Models.ViewModels.Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
+                Route routeToShow = Tools.SelectRoute(routes, dateTime, isDepart);
                 ViewBag.ToShow = routeToShow != null ? routeToShow.Index : 0;
                 return PartialView("_Routes", routes);
             }
@@ -128,13 +124,12 @@ namespace IsraelRail.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRoutes(string origin, string destination, DateTime dateTime, bool isDepart)
+        public async Task<IActionResult> GetRoutes(int origin, int destination, DateTime dateTime, bool isDepart)
         {
             try
             {
-                GetRoutesResponse getRoutesResponse = await _rail.GetRoutes(origin, destination, dateTime, isDepart);
-                IEnumerable<TrainAvailableChairsResponse> chairsResponses = await GetChairsResponses(getRoutesResponse);
-                IEnumerable<Models.ViewModels.Route> routes = await _railRouteBuilder.BuildRoutes(getRoutesResponse, chairsResponses);
+                TimetableResponse timetableResponse = await _rail.Timetable(origin, destination, dateTime, isDepart ? ScheduleType.OriginTime : ScheduleType.DestinationTime);
+                IEnumerable<Route> routes = await _railRouteBuilder.BuildRoutes(timetableResponse.Result);
                 return Json(routes);
             }
             catch (Exception ex)
@@ -142,27 +137,6 @@ namespace IsraelRail.Controllers
                 _logger.LogCritical(ex, $"Failed GetRoutes({origin}, {destination}, {dateTime:yyyy-MM-ddTHH:mm}, {isDepart})");
                 return StatusCode(500, ex);
             }
-        }
-
-        private async Task<IEnumerable<TrainAvailableChairsResponse>> GetChairsResponses(GetRoutesResponse getRoutesResponse)
-        {
-            IEnumerable<TrainAvailableChairsRequest> chairsRequests = _rail.TrainAvailableChairsRequestBuilder(getRoutesResponse);
-            List<Task<TrainAvailableChairsResponse>> tasks = new List<Task<TrainAvailableChairsResponse>>();
-            foreach (TrainAvailableChairsRequest chairsRequest in chairsRequests)
-            {
-                tasks.Add(_rail.TrainAvailableChairs(chairsRequest));
-            }
-            IEnumerable<TrainAvailableChairsResponse> chairsResponses;
-            try
-            {
-                chairsResponses = await Task.WhenAll(tasks);
-            }
-            catch (Exception ex)
-            {
-                chairsResponses = tasks.Where(t => t.Status == TaskStatus.RanToCompletion).Select(t => t.Result).ToList();
-                _logger.LogError(ex, "GetChairsResponses failed");
-            }
-            return chairsResponses;
         }
     }
 }

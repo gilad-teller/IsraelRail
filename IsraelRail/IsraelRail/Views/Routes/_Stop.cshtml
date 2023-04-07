@@ -13,7 +13,6 @@
         <b>Platform:</b> @Model.Platform
     }
     <b>Time: </b> @string.Join('-', Model.StopTime.Select(x => x.ToString("HH:mm")))
-    <partial name="_Delay" model="Model.Delay" />
     @if (Model.Congestion.HasValue)
     {
         int cong = (int)(Model.Congestion * 100);

@@ -44,12 +44,13 @@ namespace IsraelRail.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStationData(string id)
+        public async Task<IActionResult> GetStationData(int id)
         {
             try
             {
-                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(id);
-                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id), E_Language.Hebrew);
+                StationLightData stationLightData = await _staticStations.GetStation(id);
+                StationInformationResponse stationInfo = await _rail.GetStationInformation(id);
+                StationData stationData = new StationData(stationInfo.Result, stationLightData);
                 return Ok(stationData);
             }
             catch (Exception ex)
@@ -59,12 +60,13 @@ namespace IsraelRail.Controllers
             }
         }
 
-        public async Task<IActionResult> Station(string id)
+        public async Task<IActionResult> Station(int id)
         {
             try
             {
-                GetStationsInforResponse stationInfo = await _rail.GetStationsInfor(id);
-                StationData stationData = new StationData(stationInfo.Data.FirstOrDefault(x => x.StationCode == id), E_Language.Hebrew);
+                StationLightData stationLightData = await _staticStations.GetStation(id);
+                StationInformationResponse stationInfo = await _rail.GetStationInformation(id);
+                StationData stationData = new StationData(stationInfo.Result, stationLightData);
                 ViewBag.GoogleMapsUrl = _google.GetGoogleMapsUrl(stationData);
                 return PartialView("_Station", stationData);
             }
@@ -84,7 +86,7 @@ namespace IsraelRail.Controllers
             try
             {
                 IEnumerable<StationLightData> allStations = await _staticStations.GetAllStations();
-                Dictionary<string, string> res = allStations.ToDictionary(x => x.Id, y => y.Name);
+                Dictionary<int, string> res = allStations.ToDictionary(x => x.Id, y => y.Name);
                 return Ok(res);
             }
             catch (Exception ex)
