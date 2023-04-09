@@ -149,7 +149,7 @@ namespace IsraelRail.Models.ViewModels
                             StationName = await _staticStations.GetStationName(routeStation.StationId),
                             Congestion = routeStation.Crowded,
                             Platform = routeStation.Platform.ToString(),
-                            StopTime = new List<DateTime> { DateTime.Now },
+                            StopTime = new List<DateTime> { DateTime.Parse(routeStation.ArrivalTime)  },
                             IsCurrent = routeStation.StationId == currentStation && nextStation == 0,
                         };
                         train.Stops.Add(stop);
