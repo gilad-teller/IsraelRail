@@ -95,11 +95,11 @@ namespace IsraelRail.Models.ViewModels
             int index = 0;
             foreach (Travel travel in timetable.Travels)
             {
-                double delayMinitues = travel.Trains[0].TrainPosition != null ? (double)travel.Trains[0].TrainPosition.CalcDiffMinutes : 0.0;
+                double delayMinitues = travel.Trains[0].TrainPosition != null ? travel.Trains[0].TrainPosition.CalcDiffMinutes : 0.0;
                 Route route = new Route()
                 {
                     Index = index++,
-                    EstimatedTime = TimeSpan.FromMinutes(delayMinitues * -1),
+                    EstimatedTime = TimeSpan.FromMinutes(delayMinitues),
                     IsExchange = travel.Trains.Length > 1,
                     Trains = new List<Train>()
                 };
@@ -139,7 +139,7 @@ namespace IsraelRail.Models.ViewModels
                     };
                     if (apiTrain.TrainPosition != null)
                     {
-                        train.Delay = TimeSpan.FromMinutes((double)travel.Trains[0].TrainPosition.CalcDiffMinutes * -1);
+                        train.Delay = TimeSpan.FromMinutes(travel.Trains[0].TrainPosition.CalcDiffMinutes);
                     }
                     foreach (RouteStation routeStation in apiTrain.RouteStations)
                     {
@@ -149,7 +149,7 @@ namespace IsraelRail.Models.ViewModels
                             StationName = await _staticStations.GetStationName(routeStation.StationId),
                             Congestion = routeStation.Crowded,
                             Platform = routeStation.Platform.ToString(),
-                            StopTime = new List<DateTime> { DateTime.Now },
+                            StopTime = new List<DateTime> { DateTime.Parse(routeStation.ArrivalTime)  },
                             IsCurrent = routeStation.StationId == currentStation && nextStation == 0,
                         };
                         train.Stops.Add(stop);
