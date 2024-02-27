@@ -139,7 +139,7 @@ namespace IsraelRail.Models.ViewModels
                     };
                     if (apiTrain.TrainPosition != null)
                     {
-                        train.Delay = TimeSpan.FromMinutes(travel.Trains[0].TrainPosition.CalcDiffMinutes);
+                        train.Delay = TimeSpan.FromMinutes(travel?.Trains[0]?.TrainPosition?.CalcDiffMinutes ?? 0);
                     }
                     foreach (RouteStation routeStation in apiTrain.RouteStations)
                     {
